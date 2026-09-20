@@ -1,0 +1,9 @@
+{
+  "receipt_id": "REC-TSK-1001-GATE_5_DOC_SYNC-PASS",
+  "task_id": "TSK-1001",
+  "gate": "gate_5_doc_sync",
+  "outcome": "PASS",
+  "timestamp": "2026-09-20T12:22:32.162745",
+  "details": {},
+  "signature_sha256": "f981b6557aa06ba5a3f57697872b6a77a826acb94664a5136e318d4fa712beb3"
+}

@@ -1,0 +1,17 @@
+{"timestamp": "2026-09-20T12:21:31.460256", "event_type": "TASK_CREATED", "task_id": "TSK-1001", "actor": "pm", "payload": {"title": "实现JWT用户鉴权服务", "tier": 2}}
+{"timestamp": "2026-09-20T12:21:35.177953", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "gatekeeper", "payload": {"from": "BACKLOG", "to": "BACKLOG", "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json"}}
+{"timestamp": "2026-09-20T12:21:39.263563", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "architect", "payload": {"from": "BACKLOG", "to": "CONTRACT_FROZEN", "receipt": null}}
+{"timestamp": "2026-09-20T12:21:42.991247", "event_type": "TASK_STARTED", "task_id": "TSK-1001", "actor": "developer", "payload": {"stage": "IN_PROGRESS"}}
+{"timestamp": "2026-09-20T12:21:53.410735", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "developer", "payload": {"from": "IN_PROGRESS", "to": "CODE_REVIEW", "receipt": null}}
+{"timestamp": "2026-09-20T12:21:57.246430", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "gatekeeper", "payload": {"from": "CODE_REVIEW", "to": "CODE_REVIEW", "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json"}}
+{"timestamp": "2026-09-20T12:22:01.181303", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "code_reviewer", "payload": {"from": "CODE_REVIEW", "to": "SECURITY_AUDIT", "receipt": null}}
+{"timestamp": "2026-09-20T12:22:05.546180", "event_type": "TASK_REJECTED", "task_id": "TSK-1001", "actor": "security_engineer", "payload": {"tag": "TSK-1001#SR-1", "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验", "stage": "IN_PROGRESS"}}
+{"timestamp": "2026-09-20T12:22:09.593374", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "developer", "payload": {"from": "IN_PROGRESS", "to": "SECURITY_AUDIT", "receipt": null}}
+{"timestamp": "2026-09-20T12:22:14.632067", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "gatekeeper", "payload": {"from": "SECURITY_AUDIT", "to": "SECURITY_AUDIT", "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json"}}
+{"timestamp": "2026-09-20T12:22:18.622597", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "security_engineer", "payload": {"from": "SECURITY_AUDIT", "to": "TESTING", "receipt": null}}
+{"timestamp": "2026-09-20T12:22:24.120483", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "gatekeeper", "payload": {"from": "TESTING", "to": "TESTING", "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json"}}
+{"timestamp": "2026-09-20T12:22:27.882812", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "qa_engineer", "payload": {"from": "TESTING", "to": "DOC_SYNC", "receipt": null}}
+{"timestamp": "2026-09-20T12:22:32.164173", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "gatekeeper", "payload": {"from": "DOC_SYNC", "to": "DOC_SYNC", "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json"}}
+{"timestamp": "2026-09-20T12:22:38.505191", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "release_engineer", "payload": {"from": "DOC_SYNC", "to": "COMPLETED", "receipt": null}}
+{"timestamp": "2026-09-20T12:22:46.723198", "event_type": "TASK_ACCEPTED", "task_id": "TSK-1001", "actor": "Human Operator (lm197)", "payload": {"note": "Staging verified. Ready for production."}}
+{"timestamp": "2026-09-20T13:02:48.246724", "event_type": "TASK_CREATED", "task_id": "SPK-1002", "actor": "developer", "payload": {"title": "集成OpenTelemetry全链路追踪探针", "tier": 1}}

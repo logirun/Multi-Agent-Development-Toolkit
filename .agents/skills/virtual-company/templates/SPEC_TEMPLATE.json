@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_id": "SPEC-{{ID}}",
+  "title": "{{TITLE}}",
+  "version": "1.0.0",
+  "frozen": false,
+  "endpoints": [
+    {
+      "method": "{{HTTP_METHOD}}",
+      "path": "{{API_PATH}}",
+      "summary": "{{SUMMARY}}",
+      "requestBody": {
+        "type": "object",
+        "required": [],
+        "properties": {}
+      },
+      "responses": {
+        "200": {
+          "description": "Success",
+          "properties": {}
+        }
+      }
+    }
+  ]
+}

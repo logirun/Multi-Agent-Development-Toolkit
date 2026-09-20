@@ -1,0 +1,1867 @@
+{
+  "version": "3.0.0",
+  "framework": "AegisFlow",
+  "created_at": "2026-09-20T12:18:04.450120",
+  "updated_at": "2026-09-20T13:02:48.248302",
+  "tasks": {
+    "TSK-1001": {
+      "id": "TSK-1001",
+      "title": "实现JWT用户鉴权服务",
+      "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+      "tier": 2,
+      "type": "TSK",
+      "priority": "HIGH",
+      "stage": "ACCEPTED",
+      "assignee": "release_engineer",
+      "est_hours": 4.0,
+      "contract_checksum": null,
+      "created_at": "2026-09-20T12:21:31.459302",
+      "started_at": "2026-09-20T12:21:42.990714",
+      "completed_at": "2026-09-20T12:22:38.504143",
+      "accepted_at": "2026-09-20T12:22:46.722458",
+      "lead_time_seconds": 55.513398,
+      "deliverables": {
+        "specs": [],
+        "adr": [],
+        "contracts": [],
+        "source_files": [],
+        "test_files": [],
+        "reviews": [],
+        "security_reports": [],
+        "qa_reports": [],
+        "receipts": [
+          ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+          ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+          ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+          ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+          ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json"
+        ]
+      },
+      "gate_status": {
+        "gate_1_contract": true,
+        "gate_2_review": true,
+        "gate_3_security": true,
+        "gate_4_testing": true,
+        "gate_5_doc_sync": true,
+        "gate_6_human_accept": true
+      },
+      "rejections": [
+        {
+          "tag": "TSK-1001#SR-1",
+          "timestamp": "2026-09-20T12:22:05.544877",
+          "rejected_by": "security_engineer",
+          "type": "SR",
+          "iteration": 1,
+          "from_stage": "SECURITY_AUDIT",
+          "target_stage": "IN_PROGRESS",
+          "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+        }
+      ],
+      "history": [
+        {
+          "timestamp": "2026-09-20T12:21:31.459343",
+          "action": "CREATE",
+          "stage": "BACKLOG",
+          "role": "pm",
+          "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+        },
+        {
+          "timestamp": "2026-09-20T12:21:35.177136",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "BACKLOG",
+          "stage": "BACKLOG",
+          "role": "gatekeeper",
+          "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+          "note": "Contract frozen with SHA256: 4162ad386b31..."
+        },
+        {
+          "timestamp": "2026-09-20T12:21:39.263007",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "BACKLOG",
+          "stage": "CONTRACT_FROZEN",
+          "role": "architect",
+          "receipt": null,
+          "note": "契约冻结完成，SHA256写入收据"
+        },
+        {
+          "timestamp": "2026-09-20T12:21:42.990714",
+          "action": "START_WORK",
+          "stage": "IN_PROGRESS",
+          "role": "developer",
+          "note": "Work started. Timestamp recorded for lead-time audit."
+        },
+        {
+          "timestamp": "2026-09-20T12:21:53.409643",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "IN_PROGRESS",
+          "stage": "CODE_REVIEW",
+          "role": "developer",
+          "receipt": null,
+          "note": "业务逻辑编码完成，提交代码审查"
+        },
+        {
+          "timestamp": "2026-09-20T12:21:57.245764",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "CODE_REVIEW",
+          "stage": "CODE_REVIEW",
+          "role": "gatekeeper",
+          "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+          "note": "Code review and Conventional Commit format passed."
+        },
+        {
+          "timestamp": "2026-09-20T12:22:01.180543",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "CODE_REVIEW",
+          "stage": "SECURITY_AUDIT",
+          "role": "code_reviewer",
+          "receipt": null,
+          "note": ""
+        },
+        {
+          "timestamp": "2026-09-20T12:22:05.544877",
+          "action": "REJECT",
+          "tag": "TSK-1001#SR-1",
+          "stage": "IN_PROGRESS",
+          "role": "security_engineer",
+          "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+        },
+        {
+          "timestamp": "2026-09-20T12:22:09.592529",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "IN_PROGRESS",
+          "stage": "SECURITY_AUDIT",
+          "role": "developer",
+          "receipt": null,
+          "note": "已整改密钥盐值注入机制与校验"
+        },
+        {
+          "timestamp": "2026-09-20T12:22:14.631244",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "SECURITY_AUDIT",
+          "stage": "SECURITY_AUDIT",
+          "role": "gatekeeper",
+          "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+          "note": "Security audit passed. Zero hardcoded secrets and dangerous execution found."
+        },
+        {
+          "timestamp": "2026-09-20T12:22:18.622026",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "SECURITY_AUDIT",
+          "stage": "TESTING",
+          "role": "security_engineer",
+          "receipt": null,
+          "note": "安全门禁通过，移交QA执行自动化测试"
+        },
+        {
+          "timestamp": "2026-09-20T12:22:24.119598",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "TESTING",
+          "stage": "TESTING",
+          "role": "gatekeeper",
+          "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+          "note": "All automated test suites passed successfully with exit code 0."
+        },
+        {
+          "timestamp": "2026-09-20T12:22:27.882207",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "TESTING",
+          "stage": "DOC_SYNC",
+          "role": "qa_engineer",
+          "receipt": null,
+          "note": "全量测试通过，移交文档同步"
+        },
+        {
+          "timestamp": "2026-09-20T12:22:32.163581",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "DOC_SYNC",
+          "stage": "DOC_SYNC",
+          "role": "gatekeeper",
+          "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json",
+          "note": "Code-Documentation synchronization verified."
+        },
+        {
+          "timestamp": "2026-09-20T12:22:38.504149",
+          "action": "STAGE_ADVANCE",
+          "from_stage": "DOC_SYNC",
+          "stage": "COMPLETED",
+          "role": "release_engineer",
+          "receipt": null,
+          "note": "全量门禁通过，呈报人类终审验收"
+        },
+        {
+          "timestamp": "2026-09-20T12:22:46.722458",
+          "action": "HUMAN_ACCEPT",
+          "stage": "ACCEPTED",
+          "role": "Human Operator (lm197)",
+          "note": "Staging verified. Ready for production."
+        }
+      ]
+    },
+    "SPK-1002": {
+      "id": "SPK-1002",
+      "title": "集成OpenTelemetry全链路追踪探针",
+      "description": "用于生产环境链路追踪与指标导出测试",
+      "tier": 1,
+      "type": "SPK",
+      "priority": "MEDIUM",
+      "stage": "BACKLOG",
+      "assignee": "developer",
+      "est_hours": 2.0,
+      "contract_checksum": null,
+      "created_at": "2026-09-20T13:02:48.245926",
+      "started_at": null,
+      "completed_at": null,
+      "accepted_at": null,
+      "lead_time_seconds": null,
+      "deliverables": {
+        "specs": [],
+        "adr": [],
+        "contracts": [],
+        "source_files": [],
+        "test_files": [],
+        "reviews": [],
+        "security_reports": [],
+        "qa_reports": [],
+        "receipts": []
+      },
+      "gate_status": {
+        "gate_1_contract": false,
+        "gate_2_review": false,
+        "gate_3_security": false,
+        "gate_4_testing": false,
+        "gate_5_doc_sync": false,
+        "gate_6_human_accept": false
+      },
+      "rejections": [],
+      "history": [
+        {
+          "timestamp": "2026-09-20T13:02:48.245951",
+          "action": "CREATE",
+          "stage": "BACKLOG",
+          "role": "developer",
+          "note": "Task created: 集成OpenTelemetry全链路追踪探针 (Tier 1, 2.0h)"
+        }
+      ]
+    }
+  },
+  "checkpoints": {
+    "TSK-1001": [
+      {
+        "timestamp": "2026-09-20T12:22:01.180651",
+        "stage": "SECURITY_AUDIT",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "SECURITY_AUDIT",
+          "assignee": "code_reviewer",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": false,
+            "gate_4_testing": false,
+            "gate_5_doc_sync": false,
+            "gate_6_human_accept": false
+          },
+          "rejections": [],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:05.545204",
+        "stage": "IN_PROGRESS",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "IN_PROGRESS",
+          "assignee": "developer",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": false,
+            "gate_4_testing": false,
+            "gate_5_doc_sync": false,
+            "gate_6_human_accept": false
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:09.592703",
+        "stage": "SECURITY_AUDIT",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "SECURITY_AUDIT",
+          "assignee": "developer",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": false,
+            "gate_4_testing": false,
+            "gate_5_doc_sync": false,
+            "gate_6_human_accept": false
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:09.592529",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "SECURITY_AUDIT",
+              "role": "developer",
+              "receipt": null,
+              "note": "已整改密钥盐值注入机制与校验"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:14.631372",
+        "stage": "SECURITY_AUDIT",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "SECURITY_AUDIT",
+          "assignee": "gatekeeper",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": true,
+            "gate_4_testing": false,
+            "gate_5_doc_sync": false,
+            "gate_6_human_accept": false
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:09.592529",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "SECURITY_AUDIT",
+              "role": "developer",
+              "receipt": null,
+              "note": "已整改密钥盐值注入机制与校验"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:14.631244",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "SECURITY_AUDIT",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              "note": "Security audit passed. Zero hardcoded secrets and dangerous execution found."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:18.622140",
+        "stage": "TESTING",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "TESTING",
+          "assignee": "security_engineer",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": true,
+            "gate_4_testing": false,
+            "gate_5_doc_sync": false,
+            "gate_6_human_accept": false
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:09.592529",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "SECURITY_AUDIT",
+              "role": "developer",
+              "receipt": null,
+              "note": "已整改密钥盐值注入机制与校验"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:14.631244",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "SECURITY_AUDIT",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              "note": "Security audit passed. Zero hardcoded secrets and dangerous execution found."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:18.622026",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "TESTING",
+              "role": "security_engineer",
+              "receipt": null,
+              "note": "安全门禁通过，移交QA执行自动化测试"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:24.119743",
+        "stage": "TESTING",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "TESTING",
+          "assignee": "gatekeeper",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": true,
+            "gate_4_testing": true,
+            "gate_5_doc_sync": false,
+            "gate_6_human_accept": false
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:09.592529",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "SECURITY_AUDIT",
+              "role": "developer",
+              "receipt": null,
+              "note": "已整改密钥盐值注入机制与校验"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:14.631244",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "SECURITY_AUDIT",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              "note": "Security audit passed. Zero hardcoded secrets and dangerous execution found."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:18.622026",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "TESTING",
+              "role": "security_engineer",
+              "receipt": null,
+              "note": "安全门禁通过，移交QA执行自动化测试"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:24.119598",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "TESTING",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+              "note": "All automated test suites passed successfully with exit code 0."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:27.882348",
+        "stage": "DOC_SYNC",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "DOC_SYNC",
+          "assignee": "qa_engineer",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": true,
+            "gate_4_testing": true,
+            "gate_5_doc_sync": false,
+            "gate_6_human_accept": false
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:09.592529",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "SECURITY_AUDIT",
+              "role": "developer",
+              "receipt": null,
+              "note": "已整改密钥盐值注入机制与校验"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:14.631244",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "SECURITY_AUDIT",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              "note": "Security audit passed. Zero hardcoded secrets and dangerous execution found."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:18.622026",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "TESTING",
+              "role": "security_engineer",
+              "receipt": null,
+              "note": "安全门禁通过，移交QA执行自动化测试"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:24.119598",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "TESTING",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+              "note": "All automated test suites passed successfully with exit code 0."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:27.882207",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "DOC_SYNC",
+              "role": "qa_engineer",
+              "receipt": null,
+              "note": "全量测试通过，移交文档同步"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:32.163686",
+        "stage": "DOC_SYNC",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "DOC_SYNC",
+          "assignee": "gatekeeper",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": true,
+            "gate_4_testing": true,
+            "gate_5_doc_sync": true,
+            "gate_6_human_accept": false
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:09.592529",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "SECURITY_AUDIT",
+              "role": "developer",
+              "receipt": null,
+              "note": "已整改密钥盐值注入机制与校验"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:14.631244",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "SECURITY_AUDIT",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              "note": "Security audit passed. Zero hardcoded secrets and dangerous execution found."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:18.622026",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "TESTING",
+              "role": "security_engineer",
+              "receipt": null,
+              "note": "安全门禁通过，移交QA执行自动化测试"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:24.119598",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "TESTING",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+              "note": "All automated test suites passed successfully with exit code 0."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:27.882207",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "DOC_SYNC",
+              "role": "qa_engineer",
+              "receipt": null,
+              "note": "全量测试通过，移交文档同步"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:32.163581",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "DOC_SYNC",
+              "stage": "DOC_SYNC",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json",
+              "note": "Code-Documentation synchronization verified."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:38.504357",
+        "stage": "COMPLETED",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "COMPLETED",
+          "assignee": "release_engineer",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": "2026-09-20T12:22:38.504143",
+          "accepted_at": null,
+          "lead_time_seconds": 55.513398,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": true,
+            "gate_4_testing": true,
+            "gate_5_doc_sync": true,
+            "gate_6_human_accept": false
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:09.592529",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "SECURITY_AUDIT",
+              "role": "developer",
+              "receipt": null,
+              "note": "已整改密钥盐值注入机制与校验"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:14.631244",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "SECURITY_AUDIT",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              "note": "Security audit passed. Zero hardcoded secrets and dangerous execution found."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:18.622026",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "TESTING",
+              "role": "security_engineer",
+              "receipt": null,
+              "note": "安全门禁通过，移交QA执行自动化测试"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:24.119598",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "TESTING",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+              "note": "All automated test suites passed successfully with exit code 0."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:27.882207",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "DOC_SYNC",
+              "role": "qa_engineer",
+              "receipt": null,
+              "note": "全量测试通过，移交文档同步"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:32.163581",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "DOC_SYNC",
+              "stage": "DOC_SYNC",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json",
+              "note": "Code-Documentation synchronization verified."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:38.504149",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "DOC_SYNC",
+              "stage": "COMPLETED",
+              "role": "release_engineer",
+              "receipt": null,
+              "note": "全量门禁通过，呈报人类终审验收"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-09-20T12:22:46.722636",
+        "stage": "ACCEPTED",
+        "snapshot": {
+          "id": "TSK-1001",
+          "title": "实现JWT用户鉴权服务",
+          "description": "实现基于HMAC-SHA256的JWT令牌生成与校验服务，对齐SPEC-0001",
+          "tier": 2,
+          "type": "TSK",
+          "priority": "HIGH",
+          "stage": "ACCEPTED",
+          "assignee": "release_engineer",
+          "est_hours": 4.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T12:21:31.459302",
+          "started_at": "2026-09-20T12:21:42.990714",
+          "completed_at": "2026-09-20T12:22:38.504143",
+          "accepted_at": "2026-09-20T12:22:46.722458",
+          "lead_time_seconds": 55.513398,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": [
+              ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+              ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json"
+            ]
+          },
+          "gate_status": {
+            "gate_1_contract": true,
+            "gate_2_review": true,
+            "gate_3_security": true,
+            "gate_4_testing": true,
+            "gate_5_doc_sync": true,
+            "gate_6_human_accept": true
+          },
+          "rejections": [
+            {
+              "tag": "TSK-1001#SR-1",
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "rejected_by": "security_engineer",
+              "type": "SR",
+              "iteration": 1,
+              "from_stage": "SECURITY_AUDIT",
+              "target_stage": "IN_PROGRESS",
+              "reason": "安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验"
+            }
+          ],
+          "history": [
+            {
+              "timestamp": "2026-09-20T12:21:31.459343",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "pm",
+              "note": "Task created: 实现JWT用户鉴权服务 (Tier 2, 4.0h)"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:35.177136",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "BACKLOG",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_1_CONTRACT-PASS.json",
+              "note": "Contract frozen with SHA256: 4162ad386b31..."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:39.263007",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "BACKLOG",
+              "stage": "CONTRACT_FROZEN",
+              "role": "architect",
+              "receipt": null,
+              "note": "契约冻结完成，SHA256写入收据"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:42.990714",
+              "action": "START_WORK",
+              "stage": "IN_PROGRESS",
+              "role": "developer",
+              "note": "Work started. Timestamp recorded for lead-time audit."
+            },
+            {
+              "timestamp": "2026-09-20T12:21:53.409643",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "CODE_REVIEW",
+              "role": "developer",
+              "receipt": null,
+              "note": "业务逻辑编码完成，提交代码审查"
+            },
+            {
+              "timestamp": "2026-09-20T12:21:57.245764",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "CODE_REVIEW",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_2_REVIEW-PASS.json",
+              "note": "Code review and Conventional Commit format passed."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:01.180543",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "CODE_REVIEW",
+              "stage": "SECURITY_AUDIT",
+              "role": "code_reviewer",
+              "receipt": null,
+              "note": ""
+            },
+            {
+              "timestamp": "2026-09-20T12:22:05.544877",
+              "action": "REJECT",
+              "tag": "TSK-1001#SR-1",
+              "stage": "IN_PROGRESS",
+              "role": "security_engineer",
+              "note": "Rejection TSK-1001#SR-1 by security_engineer (SR): 安全审计一票否决：建议使用os.environ读取密钥盐值，并增加密钥最小长度校验 -> Rollback to IN_PROGRESS"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:09.592529",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "IN_PROGRESS",
+              "stage": "SECURITY_AUDIT",
+              "role": "developer",
+              "receipt": null,
+              "note": "已整改密钥盐值注入机制与校验"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:14.631244",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "SECURITY_AUDIT",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_3_SECURITY-PASS.json",
+              "note": "Security audit passed. Zero hardcoded secrets and dangerous execution found."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:18.622026",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "SECURITY_AUDIT",
+              "stage": "TESTING",
+              "role": "security_engineer",
+              "receipt": null,
+              "note": "安全门禁通过，移交QA执行自动化测试"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:24.119598",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "TESTING",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_4_TESTING-PASS.json",
+              "note": "All automated test suites passed successfully with exit code 0."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:27.882207",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "TESTING",
+              "stage": "DOC_SYNC",
+              "role": "qa_engineer",
+              "receipt": null,
+              "note": "全量测试通过，移交文档同步"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:32.163581",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "DOC_SYNC",
+              "stage": "DOC_SYNC",
+              "role": "gatekeeper",
+              "receipt": ".agents\\receipts\\REC-TSK-1001-GATE_5_DOC_SYNC-PASS.json",
+              "note": "Code-Documentation synchronization verified."
+            },
+            {
+              "timestamp": "2026-09-20T12:22:38.504149",
+              "action": "STAGE_ADVANCE",
+              "from_stage": "DOC_SYNC",
+              "stage": "COMPLETED",
+              "role": "release_engineer",
+              "receipt": null,
+              "note": "全量门禁通过，呈报人类终审验收"
+            },
+            {
+              "timestamp": "2026-09-20T12:22:46.722458",
+              "action": "HUMAN_ACCEPT",
+              "stage": "ACCEPTED",
+              "role": "Human Operator (lm197)",
+              "note": "Staging verified. Ready for production."
+            }
+          ]
+        }
+      }
+    ],
+    "SPK-1002": [
+      {
+        "timestamp": "2026-09-20T13:02:48.246013",
+        "stage": "BACKLOG",
+        "snapshot": {
+          "id": "SPK-1002",
+          "title": "集成OpenTelemetry全链路追踪探针",
+          "description": "用于生产环境链路追踪与指标导出测试",
+          "tier": 1,
+          "type": "SPK",
+          "priority": "MEDIUM",
+          "stage": "BACKLOG",
+          "assignee": "developer",
+          "est_hours": 2.0,
+          "contract_checksum": null,
+          "created_at": "2026-09-20T13:02:48.245926",
+          "started_at": null,
+          "completed_at": null,
+          "accepted_at": null,
+          "lead_time_seconds": null,
+          "deliverables": {
+            "specs": [],
+            "adr": [],
+            "contracts": [],
+            "source_files": [],
+            "test_files": [],
+            "reviews": [],
+            "security_reports": [],
+            "qa_reports": [],
+            "receipts": []
+          },
+          "gate_status": {
+            "gate_1_contract": false,
+            "gate_2_review": false,
+            "gate_3_security": false,
+            "gate_4_testing": false,
+            "gate_5_doc_sync": false,
+            "gate_6_human_accept": false
+          },
+          "rejections": [],
+          "history": [
+            {
+              "timestamp": "2026-09-20T13:02:48.245951",
+              "action": "CREATE",
+              "stage": "BACKLOG",
+              "role": "developer",
+              "note": "Task created: 集成OpenTelemetry全链路追踪探针 (Tier 1, 2.0h)"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "metrics": {
+    "total_created": 2,
+    "total_accepted": 1,
+    "total_rejections": 1,
+    "circuit_breakers_triggered": 0
+  }
+}

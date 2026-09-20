@@ -1,0 +1,12 @@
+{
+  "receipt_id": "REC-TSK-1001-GATE_4_TESTING-PASS",
+  "task_id": "TSK-1001",
+  "gate": "gate_4_testing",
+  "outcome": "PASS",
+  "timestamp": "2026-09-20T12:22:24.118301",
+  "details": {
+    "test_files_count": 5,
+    "command": "python -m unittest tests/test_auth.py"
+  },
+  "signature_sha256": "3e8e8a08787f76e2bd3fa5824fbc2e66397e9964e6e0e358215b18e116c751b8"
+}

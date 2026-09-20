@@ -1,0 +1,9 @@
+{
+  "receipt_id": "REC-TSK-1001-GATE_3_SECURITY-PASS",
+  "task_id": "TSK-1001",
+  "gate": "gate_3_security",
+  "outcome": "PASS",
+  "timestamp": "2026-09-20T12:22:14.629994",
+  "details": [],
+  "signature_sha256": "92699ad9874acc73f12fb7beccf159e743f260a19cb8c8cbbc958e9f5e3c3c94"
+}

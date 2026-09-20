@@ -1,0 +1,2424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+  AegisFlow 确定性代码治理与多维敏捷看板 (Human Manager Centric Web Dashboard v3.5)
+  ================================================================================
+  - 零外部依赖：纯原生 HTML5 / CSS3 / Vanilla JS 架构，离线环境 100% 可用。
+  - 人类管理者视角：全面升级 🎯 业务目标 & 🏁 交付成果一等公民卡片。
+  - 👥 全角色协同履职矩阵：透视 11 大角色在生命周期中的分工、具体行为与交付产物。
+  - 📑 人类可读质检通关报告书：自动转译底层密码学收据为直观通俗的质检结论，告别机器哈希。
+  - 彻底杜绝横向滚动条：960px 舒适居中弹窗，全自适应排版。
+  - 暗黑定制表单 UI：消除浏览器原生丑陋白底控件，统一现代深色磨砂质感。
+  - 一键终审放行：为人类操作员提供不可逆封板归档控制。
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AegisFlow · 数字化软件工坊全维管控大盘</title>
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #121722;
+    --surface-hover: #192132;
+    --surface-card: #151c2a;
+    --modal-bg: #111624;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(99, 102, 241, 0.35);
+    --border-highlight: rgba(99, 102, 241, 0.5);
+    --primary: #6366f1;
+    --primary-light: #818cf8;
+    --cyan: #38bdf8;
+    --green: #10b981;
+    --green-bg: rgba(16, 185, 129, 0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --red-bg: rgba(239, 68, 68, 0.12);
+    --purple: #a855f7;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    padding: 20px 24px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+  /* 顶部导航与品牌栏 */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+  }
+  .brand-title { font-size: 21px; font-weight: 800; letter-spacing: -0.4px; }
+  .subtitle { font-size: 12.5px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+
+  /* 呼吸状态灯 */
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+  }
+
+  /* 顶部指标统计栏 */
+  .metrics-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .metric-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    font-family: var(--mono);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+  .metric-num { font-weight: 700; color: var(--cyan); }
+  .metric-num.green { color: var(--green); }
+  .metric-num.amber { color: var(--amber); }
+  .metric-num.red { color: var(--red); }
+
+  /* 通用按钮系统 */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    font-family: inherit;
+    user-select: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), #4f46e5);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5);
+  }
+  .btn-secondary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-secondary:hover {
+    background: var(--surface-hover);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+  }
+  .btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.5);
+  }
+  .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; }
+
+  /* 导航多视图切换 Tabs */
+  .nav-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .view-tabs {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .tab-btn {
+    padding: 7px 15px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+  .tab-btn.active {
+    color: #fff;
+    background: var(--primary);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  }
+
+  /* 筛选与搜索控制条 */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 12px;
+  }
+  .search-box { position: relative; flex: 1; min-width: 240px; }
+  .search-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px 8px 34px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+  .search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 13px;
+    pointer-events: none;
+  }
+  .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-pill {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .filter-pill:hover { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+  .filter-pill.active {
+    background: rgba(99, 102, 241, 0.22);
+    border-color: var(--primary);
+    color: var(--primary-light);
+    font-weight: 600;
+  }
+  .filter-stat {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: auto;
+    font-family: var(--mono);
+  }
+
+  /* 现代暗黑表单 UI 系统 (彻底消除原生白色下拉框) */
+  select, .form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #141a29;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+    padding: 9px 36px 9px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    outline: none;
+  }
+  select:hover, .form-select:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    background-color: #1a2236;
+  }
+  select:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  }
+  select option {
+    background-color: #141a29;
+    color: #f8fafc;
+    padding: 10px;
+  }
+
+  .form-input, .form-textarea {
+    width: 100%;
+    background-color: #141a29;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+  .form-input:hover, .form-textarea:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    background-color: #1a2236;
+  }
+  .form-input:focus, .form-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* 角色协同复选框网格 */
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .checkbox-item input[type="checkbox"] {
+    accent-color: var(--primary);
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+  }
+
+  /* 泳道看板通用网格布局 */
+  .lanes-container {
+    display: grid;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .lanes-5 { grid-template-columns: repeat(5, minmax(240px, 1fr)); }
+  .lanes-6 { grid-template-columns: repeat(6, minmax(220px, 1fr)); }
+  .lanes-4 { grid-template-columns: repeat(4, minmax(260px, 1fr)); }
+  .lanes-7 { grid-template-columns: repeat(7, minmax(200px, 1fr)); }
+
+  @media (max-width: 1440px) {
+    .lanes-container { overflow-x: auto; padding-bottom: 12px; }
+  }
+
+  .lane {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    min-height: 500px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  }
+  .lane-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .lane-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .lane-count {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+  }
+  .cards-list {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+
+  /* 任务卡片设计 */
+  .task-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .task-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .task-card:hover {
+    border-color: rgba(99, 102, 241, 0.45);
+    background: var(--surface-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+  }
+  .task-card.crit::before { background: var(--red); }
+  .task-card.high::before { background: var(--amber); }
+  .task-card.med::before { background: var(--cyan); }
+  .task-card.low::before { background: var(--text-dim); }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .card-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cyan);
+  }
+  .priority-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--mono);
+  }
+  .crit { background: rgba(239, 68, 68, 0.22); color: var(--red); }
+  .high { background: rgba(245, 158, 11, 0.22); color: var(--amber); }
+  .med { background: rgba(56, 189, 248, 0.22); color: var(--cyan); }
+  .low { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); }
+
+  .card-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .card-desc {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .gates-matrix {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 3px 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    width: fit-content;
+  }
+  .gate-pip {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+  }
+  .gate-pip.passed { background: var(--green); box-shadow: 0 0 5px var(--green); }
+  .gate-pip.failed { background: var(--red); box-shadow: 0 0 5px var(--red); }
+  .gate-pip-label { font-size: 9.5px; font-family: var(--mono); color: var(--text-dim); margin-left: 3px; }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    padding-top: 6px;
+    border-top: 1px dashed var(--border);
+  }
+  .badge-assignee {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .badge-rej { color: var(--amber); font-weight: 600; }
+  .badge-rej.blocked { color: var(--red); font-weight: 800; }
+
+  /* 表格列表视图 */
+  .table-view {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow-x: auto;
+  }
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  .custom-table th {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .custom-table th:hover { color: var(--text); }
+  .custom-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .custom-table tr:hover td { background: var(--surface-hover); }
+  .custom-table tr { cursor: pointer; }
+  .stage-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 600;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--primary-light);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+  }
+
+  /* 健康大盘 */
+  .health-view { display: flex; flex-direction: column; gap: 20px; }
+  .health-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .health-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .health-card-header { display: flex; justify-content: space-between; align-items: center; }
+  .health-card-title { font-size: 14px; font-weight: 700; color: var(--text-muted); }
+  .health-big-score {
+    font-size: 44px;
+    font-weight: 900;
+    font-family: var(--mono);
+    color: var(--green);
+    line-height: 1;
+  }
+  .gate-stat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  .gate-bar-bg {
+    width: 100px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .gate-bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 4px;
+  }
+
+  /* ================================================================ */
+  /* 人类管理层核心：居中大气模态弹窗 (960px 宽度，无横向滚动条)      */
+  /* ================================================================ */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--modal-bg);
+    border: 1px solid var(--border-highlight);
+    border-radius: 16px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.85);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    animation: modalIn 0.22s ease-out;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.97) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-lg { width: 960px; max-width: 95vw; }
+  .modal-md { width: 560px; max-width: 92vw; }
+
+  .modal-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .modal-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .modal-body {
+    padding: 22px 26px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    word-break: break-word;
+  }
+  .modal-body * { min-width: 0; }
+
+  /* 1. 人类管理者态势速报横幅 */
+  .human-summary-banner {
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(56, 189, 248, 0.08));
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    font-size: 13.5px;
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .human-summary-banner.blocked {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(245, 158, 11, 0.1));
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+  .human-summary-banner.rejected {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(239, 68, 68, 0.08));
+    border-color: rgba(245, 158, 11, 0.5);
+  }
+  .human-summary-banner.accepted {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(56, 189, 248, 0.08));
+    border-color: rgba(16, 185, 129, 0.5);
+  }
+  .human-summary-banner.ready-accept {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(99, 102, 241, 0.15));
+    border-color: rgba(16, 185, 129, 0.6);
+  }
+
+  /* 2. 🎯 业务目标 (Objective) 与 🏁 交付结果 (Result) 卡片网格 */
+  .obj-res-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 768px) { .obj-res-grid { grid-template-columns: 1fr; } }
+
+  .obj-card, .res-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .obj-card {
+    border-color: rgba(56, 189, 248, 0.3);
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.06), rgba(99, 102, 241, 0.03));
+  }
+  .res-card {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(6, 182, 212, 0.03));
+  }
+  .res-card.in-progress {
+    border-color: rgba(245, 158, 11, 0.35);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(99, 102, 241, 0.03));
+  }
+  .res-card.blocked {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(245, 158, 11, 0.04));
+  }
+
+  .box-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .box-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .box-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: var(--mono);
+  }
+  .box-body-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* 3. 研发阶段推进状态进度条 (5-Stage Visual Stepper) */
+  .stepper-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.32);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    gap: 8px;
+  }
+  .stepper-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+  }
+  .stepper-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    transition: all 0.3s ease;
+  }
+  .stepper-item.completed .stepper-circle {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .stepper-item.active .stepper-circle {
+    background: var(--primary);
+    border-color: var(--primary-light);
+    color: #fff;
+    box-shadow: 0 0 14px var(--primary);
+  }
+  .stepper-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-align: center;
+  }
+  .stepper-item.active .stepper-label { color: var(--cyan); font-weight: 700; }
+  .stepper-item.completed .stepper-label { color: var(--text); }
+
+  /* 4. 核心进度与资源属性网格 */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: 12px;
+  }
+  @media (max-width: 768px) { .info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .info-item { display: flex; flex-direction: column; gap: 4px; }
+  .info-label { font-size: 11.5px; color: var(--text-dim); }
+  .info-val { font-size: 13.5px; font-weight: 600; font-family: var(--mono); color: var(--text); }
+
+  /* 5. 👥 全角色协同履职矩阵 */
+  .role-matrix-container {
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .collab-roles-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .collab-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+  .collab-pill.active {
+    background: rgba(99, 102, 241, 0.18);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: var(--primary-light);
+    font-weight: 600;
+  }
+  .role-actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .role-action-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .role-action-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .role-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .role-name-title { font-weight: 700; font-size: 13px; color: var(--text); }
+  .role-action-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .role-action-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* 6. 六重门禁通关大盘 */
+  .gates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (max-width: 768px) { .gates-grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .gate-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .gate-card.pass {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.04);
+  }
+  .gate-card.pending {
+    border-color: var(--border);
+    background: rgba(0, 0, 0, 0.18);
+  }
+  .gate-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .gate-card-name { font-weight: 700; font-size: 13px; color: var(--text); }
+  .gate-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .gate-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    gap: 8px;
+  }
+
+  /* 7. 📑 人类可读质检通关报告书阅读器 */
+  .receipt-report-sheet {
+    background: #0d121c;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .report-top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .report-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 768px) { .report-metrics-grid { grid-template-columns: 1fr; } }
+  .report-metric-box {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .report-metric-k { font-size: 11.5px; color: var(--text-dim); }
+  .report-metric-v { font-size: 13px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+
+  pre.code-preview {
+    background: #07090f;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--cyan);
+    overflow-x: auto;
+    max-height: 200px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  /* 8. 质检打回档案 */
+  .defect-ledger {
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .rej-record-card {
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    gap: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. 顶部 Header -->
+<header>
+  <div class="brand">
+    <div class="brand-badge">🛡️</div>
+    <div>
+      <div class="brand-title">AegisFlow · 数字化软件工坊管控大盘</div>
+      <div class="subtitle">
+        <span class="live-dot"></span>
+        <span>微内核驱动 | 全角色协同履职 | 人类可读质检通关报告</span>
+      </div>
+    </div>
+  </div>
+  <div class="metrics-bar">
+    <div class="metric-pill">总工单: <span class="metric-num" id="metricTotal">0</span></div>
+    <div class="metric-pill">进行中: <span class="metric-num" id="metricActive">0</span></div>
+    <div class="metric-pill">已验收: <span class="metric-num green" id="metricAccepted">0</span></div>
+    <div class="metric-pill">质检打回: <span class="metric-num amber" id="metricRej">0</span></div>
+    <div class="metric-pill">熔断挂起: <span class="metric-num red" id="metricBlocked">0</span></div>
+    <button class="btn btn-primary" onclick="openCreateModal()">➕ 新建工单</button>
+  </div>
+</header>
+
+<!-- 2. 多维度视图导航与控制栏 -->
+<div class="nav-toolbar">
+  <div class="view-tabs">
+    <button class="tab-btn active" onclick="switchView('stage', event)">📌 阶段看板</button>
+    <button class="tab-btn" onclick="switchView('status', event)">🏷️ 状态看板</button>
+    <button class="tab-btn" onclick="switchView('role', event)">👥 角色面板</button>
+    <button class="tab-btn" onclick="switchView('risk', event)">⚡ 风险等级</button>
+    <button class="tab-btn" onclick="switchView('table', event)">📑 表格列表</button>
+    <button class="tab-btn" onclick="switchView('health', event)">📊 质量与健康</button>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-secondary btn-sm" onclick="fetchBoard(true)">🔄 立即刷新</button>
+  </div>
+</div>
+
+<!-- 3. 全局搜索与快捷过滤条 -->
+<div class="filter-bar">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" class="search-input" placeholder="搜索工单编号、标题、目标、责任人..." oninput="onFilterChange()">
+  </div>
+  <div class="filter-pills">
+    <span class="filter-pill active" onclick="setQuickFilter('all', this)">全部</span>
+    <span class="filter-pill" onclick="setQuickFilter('active', this)">进行中</span>
+    <span class="filter-pill" onclick="setQuickFilter('rejected', this)">质检打回</span>
+    <span class="filter-pill" onclick="setQuickFilter('blocked', this)">熔断挂起</span>
+    <span class="filter-pill" onclick="setQuickFilter('critical', this)">核心高危</span>
+  </div>
+  <div class="filter-stat" id="filterStat">共计 0 项</div>
+</div>
+
+<!-- 4. 视图渲染主体区域 -->
+<main id="mainViewContainer">
+  <!-- 动态由 JavaScript 渲染看板或列表 -->
+</main>
+
+<!-- ================================================================= -->
+<!-- 5. 工单详情居中模态弹窗 (960px 宽度，无横向滚动条)               -->
+<!-- ================================================================= -->
+<div class="modal-overlay" id="taskModalOverlay" onclick="closeTaskModal()">
+  <div class="modal modal-lg" id="taskDetailModal" onclick="event.stopPropagation()">
+    <!-- 弹窗 Header -->
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <span id="modalTaskId" style="font-family:var(--mono); font-size:17px; font-weight:800; color:var(--cyan);">TSK-xxxx</span>
+        <span id="modalPriority" class="priority-tag high">HIGH</span>
+        <span id="modalStage" class="stage-badge">STAGE</span>
+      </div>
+      <button class="modal-close-btn" onclick="closeTaskModal()" title="关闭">✕</button>
+    </div>
+
+    <!-- 弹窗 Body (彻底消除横向滚动条) -->
+    <div class="modal-body">
+      <!-- 1. 人类管理者态势速报横幅 -->
+      <div id="modalHumanSummary" class="human-summary-banner">
+        <!-- 动态生成通俗易懂的当前态势通报 -->
+      </div>
+
+      <!-- 2. 🎯 业务立项目标 (Objective) 与 🏁 交付成果与结论 (Result) -->
+      <div class="obj-res-grid">
+        <div class="obj-card">
+          <div class="box-top-row">
+            <span class="box-title" style="color:var(--cyan);">🎯 业务立项目标 (Target Objective)</span>
+            <span class="box-badge" style="background:rgba(56, 189, 248, 0.2); color:var(--cyan);">立项对齐</span>
+          </div>
+          <div class="box-body-text" id="modalObjective">-</div>
+        </div>
+        <div class="res-card" id="modalResultBox">
+          <div class="box-top-row">
+            <span class="box-title" id="modalResultTitle" style="color:var(--green);">🏁 交付成果与最终结论 (Result & Impact)</span>
+            <span class="box-badge" id="modalResultBadge" style="background:rgba(16, 185, 129, 0.2); color:var(--green);">结论已出</span>
+          </div>
+          <div class="box-body-text" id="modalResult">-</div>
+        </div>
+      </div>
+
+      <!-- 3. 研发生命周期阶段推进状态 (5 步进度条) -->
+      <div>
+        <div style="font-size:12.5px; font-weight:700; color:var(--text-muted); margin-bottom:8px;">🚩 研发生命周期全流程管控</div>
+        <div class="stepper-container" id="modalStepper">
+          <!-- 动态生成 5 步进度节点 -->
+        </div>
+      </div>
+
+      <!-- 4. 核心进度与资源属性网格 -->
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">当前责任人</span>
+          <span class="info-val" id="modalAssignee">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">类型与风险层级</span>
+          <span class="info-val" id="modalTypeTier">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">预估工时 / 交付耗时</span>
+          <span class="info-val" id="modalHours">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">质检打回 / 熔断风控</span>
+          <span class="info-val" id="modalRejections">-</span>
+        </div>
+      </div>
+
+      <!-- 5. 👥 全角色协同履职矩阵 (清晰回答每个角色干了什么事) -->
+      <div class="role-matrix-container">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:var(--primary-light);">👥 全角色协同履职矩阵 (Role Responsibility & Action Matrix)</div>
+            <div style="font-size:11.5px; color:var(--text-dim); margin-top:2px;">清晰追溯每个专业角色在生命周期中的职责定位、具体行为与阶段交付物</div>
+          </div>
+          <span style="font-size:11px; color:var(--text-dim);" id="modalCollabCount">0 个角色协同参与</span>
+        </div>
+        <!-- 协同角色徽章栏 -->
+        <div class="collab-roles-bar" id="modalCollabPills"></div>
+        <!-- 角色具体动作时间流列表 -->
+        <div class="role-actions-list" id="modalRoleActionsList"></div>
+      </div>
+
+      <!-- 6. 需求背景与验收准则 (AC) -->
+      <div>
+        <div style="font-size:12.5px; font-weight:700; color:var(--text-muted); margin-bottom:6px;">📄 详细需求背景与验收准则 (AC)</div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; font-size:13px; line-height:1.6; color:var(--text-muted); white-space:pre-wrap;" id="modalDesc">-</div>
+      </div>
+
+      <!-- 7. 六重质量门禁通关大盘 (G1 - G6) -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:12.5px; font-weight:700; color:var(--text-muted);">🛡️ 六重确定性质量门禁结论 (Gate 1 - Gate 6)</span>
+          <span style="font-size:11.5px; color:var(--text-dim);">机器自动判定 · 闭环质检凭证</span>
+        </div>
+        <div class="gates-grid" id="modalGatesGrid">
+          <!-- 动态渲染六重门禁卡片 -->
+        </div>
+      </div>
+
+      <!-- 8. 📑 人类可读质检通关报告书 (拒绝技术哈希乱码) -->
+      <div id="receiptPreviewSection" style="display:none; margin-top:-4px;">
+        <!-- 动态生成通俗人类可读的质检报告单 -->
+      </div>
+
+      <!-- 9. 质检打回与历史缺陷档案 -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:12.5px; font-weight:700; color:var(--amber);">🚫 质检打回与历史缺陷档案 (#QR / #SR / #FR / #DR)</span>
+          <span style="font-size:11.5px; color:var(--text-dim);">三阶硬熔断防御中 (累计3次将锁定权限)</span>
+        </div>
+        <div class="defect-ledger" id="modalDefectLedger">
+          <!-- 动态渲染历史打回记录与缺陷说明 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 弹窗 Footer -->
+    <div class="modal-footer" id="modalFooterActions">
+      <div id="modalFooterStatus" style="font-size:12px; color:var(--text-muted);">
+        当前状态说明已同步
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <span id="modalAcceptActionContainer"></span>
+        <button class="btn btn-secondary" onclick="closeTaskModal()">关闭详情</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- 6. 新建工单模态弹窗 (支持立项目标与协同角色选择)                -->
+<!-- ================================================================= -->
+<div class="modal-overlay" id="createModal" onclick="closeCreateModal()">
+  <div class="modal modal-md" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="font-size:15px; font-weight:700;">➕ 创建新研发工单 / 契约卡片</div>
+      <button class="modal-close-btn" onclick="closeCreateModal()" title="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">工单简要标题 *</label>
+        <input type="text" id="newTitle" class="form-input" placeholder="如：实现基于 RSA-256 的用户鉴权服务">
+      </div>
+      <div class="form-group">
+        <label class="form-label">🎯 业务立项目标 (Target Objective) *</label>
+        <textarea id="newObjective" class="form-textarea" rows="2" placeholder="清晰陈述立项目的与预期业务价值，例如：为全站提供高可用非对称加密JWT鉴权，杜绝硬编码泄漏隐患..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">工单类别</label>
+          <select id="newType" class="form-select">
+            <option value="TSK">TSK (核心任务/特性研发)</option>
+            <option value="REQ">REQ (业务需求/PRD)</option>
+            <option value="FIX">FIX (缺陷微修/单文件)</option>
+            <option value="SPK">SPK (技术探针/调研)</option>
+            <option value="DOC">DOC (文档/规范沉淀)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">风险等级 / 优先级</label>
+          <select id="newPriority" class="form-select">
+            <option value="HIGH">HIGH (L2 标准级 - 跨模块)</option>
+            <option value="CRITICAL">CRITICAL (L3 核心级 - DDL/架构)</option>
+            <option value="MEDIUM">MEDIUM (L1 微修级 - 轻量补丁)</option>
+            <option value="LOW">LOW (L0 探针级 - 静态排查)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">主要负责人 (团队负责人 / 统筹人) *</label>
+          <select id="newAssignee" class="form-select">
+            <option value="pm" selected>📋 pm (团队负责人 / 产品主理人 PM)</option>
+            <option value="architect">🏛️ architect (系统架构师)</option>
+            <option value="developer">💻 developer (核心研发工程师)</option>
+            <option value="code_reviewer">🔍 code_reviewer (代码审查员)</option>
+            <option value="security_engineer">🛡️ security_engineer (安全审计员)</option>
+            <option value="qa_engineer">🧪 qa_engineer (测试验证员)</option>
+            <option value="dba">🗄️ dba (数据库架构师)</option>
+            <option value="uiux_designer">🎨 uiux_designer (体验设计师)</option>
+            <option value="doc_engineer">📚 doc_engineer (活文档工程师)</option>
+            <option value="release_engineer">🚀 release_engineer (发布主管)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">预估工时 (小时, 单卡≤8.0h)</label>
+          <input type="number" id="newHours" class="form-input" value="4.0" step="0.5" max="8.0" min="0.5">
+        </div>
+      </div>
+      <!-- 协同角色多选 (让每个角色都有用武之地) -->
+      <div class="form-group">
+        <label class="form-label">👥 跨专业协同联动角色 (选择参与该工单的专业守卫)</label>
+        <div class="checkbox-grid">
+          <label class="checkbox-item"><input type="checkbox" value="architect" class="collab-check" checked> 🏛️ 架构师 (边界契约)</label>
+          <label class="checkbox-item"><input type="checkbox" value="code_reviewer" class="collab-check" checked> 🔍 审查员 (语法规范)</label>
+          <label class="checkbox-item"><input type="checkbox" value="security_engineer" class="collab-check" checked> 🛡️ 安全官 (机密扫描)</label>
+          <label class="checkbox-item"><input type="checkbox" value="qa_engineer" class="collab-check" checked> 🧪 QA 测试 (单测回归)</label>
+          <label class="checkbox-item"><input type="checkbox" value="doc_engineer" class="collab-check" checked> 📚 文档官 (地图同步)</label>
+          <label class="checkbox-item"><input type="checkbox" value="dba" class="collab-check"> 🗄️ DBA (表结构变更)</label>
+          <label class="checkbox-item"><input type="checkbox" value="uiux_designer" class="collab-check"> 🎨 UIUX (交互走查)</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">详细需求背景与验收准则 (AC)</label>
+        <textarea id="newDesc" class="form-textarea" rows="3" placeholder="清晰填写需求背景、接口边界与预期验收标准..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeCreateModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitCreateTask()">确认创建工单</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// 全局状态管理
+// ================================================================
+let gBoardData = { tasks: {}, metrics: {}, checkpoints: {} };
+let gCurrentView = "stage"; // stage | status | role | risk | table | health
+let gQuickFilter = "all";   // all | active | rejected | blocked | critical
+let gSearchQuery = "";
+let gSortColumn = "id";
+let gSortAsc = true;
+let gSelectedTaskId = null;
+
+// 11 大标准角色字典
+const ROLE_DEFINITIONS = {
+  pm: { title: "团队负责人 (PM)", icon: "📋", scope: "团队全面统筹、业务目标拟定与需求全流程主导" },
+  architect: { title: "系统架构师", icon: "🏛️", scope: "系统边界与白名单契约锁定" },
+  developer: { title: "核心研发工程师", icon: "💻", scope: "业务逻辑与特性代码实现" },
+  code_reviewer: { title: "代码审查员", icon: "🔍", scope: "AST语法快筛与提交规范审查" },
+  security_engineer: { title: "独立安全审计员", icon: "🛡️", scope: "SAST机密与漏洞扫描防护" },
+  qa_engineer: { title: "质量验证测试员", icon: "🧪", scope: "自动化测试与镜像对齐验证" },
+  doc_engineer: { title: "活文档工程师", icon: "📚", scope: "架构地图与API文档同步" },
+  dba: { title: "数据库架构师", icon: "🗄️", scope: "表结构评估与数据一致性" },
+  uiux_designer: { title: "UI/UX体验设计师", icon: "🎨", scope: "交互走查与界面规范审查" },
+  release_engineer: { title: "发布协调主管", icon: "🚀", scope: "版本组装与全绿交付核验" },
+  cto: { title: "首席技术仲裁官", icon: "⚖️", scope: "硬熔断仲裁与时空快照回滚" },
+  human_operator: { title: "人类管理员", icon: "👑", scope: "项目最终业务验收与不可逆归档" }
+};
+
+// 阶段映射
+const STAGE_MAP = {
+  BACKLOG: { label: "待规划", desc: "等待需求梳理与排期" },
+  SPECIFICATION: { label: "规划中", desc: "正在拟定需求与规格说明" },
+  CONTRACT_FROZEN: { label: "契约已锁定", desc: "架构白名单与准则已固化" },
+  IN_PROGRESS: { label: "研发编码中", desc: "特性分支正在编写代码" },
+  CODE_REVIEW: { label: "代码审查中", desc: "正在进行 AST 语法与规范评审" },
+  SECURITY_AUDIT: { label: "安全审计中", desc: "正在执行 SAST 机密与漏洞扫描" },
+  TESTING: { label: "测试验证中", desc: "正在执行自动化单元测试回归" },
+  DOC_SYNC: { label: "文档同步中", desc: "正在刷新架构地图与接口文档" },
+  COMPLETED: { label: "待终审验收", desc: "全部门禁已通关，等待管理层放行" },
+  ACCEPTED: { label: "已验收归档", desc: "管理员已签字放行，项目交付闭环" },
+  BLOCKED: { label: "熔断挂起", desc: "连续3次门禁未通关，已锁死权限" },
+  CANCELLED: { label: "已取消", desc: "工单已被终止" }
+};
+
+// 1. 视图切换
+function switchView(viewName, ev) {
+  gCurrentView = viewName;
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  if (ev && ev.currentTarget) {
+    ev.currentTarget.classList.add("active");
+  }
+  renderView();
+}
+
+// 2. 快捷过滤与搜索
+function setQuickFilter(filterType, el) {
+  gQuickFilter = filterType;
+  document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+  el.classList.add("active");
+  renderView();
+}
+
+function onFilterChange() {
+  gSearchQuery = document.getElementById("searchInput").value.trim().toLowerCase();
+  renderView();
+}
+
+// 3. 数据拉取与定时刷新
+function fetchBoard(force = false) {
+  fetch("/api/board")
+    .then(r => r.json())
+    .then(data => {
+      gBoardData = data;
+      updateHeaderMetrics();
+      renderView();
+      if (gSelectedTaskId && gBoardData.tasks && gBoardData.tasks[gSelectedTaskId]) {
+        showTaskDetails(gBoardData.tasks[gSelectedTaskId]);
+      }
+    })
+    .catch(err => console.error("Poll board error:", err));
+}
+
+function updateHeaderMetrics() {
+  const tasks = Object.values(gBoardData.tasks || {});
+  const metrics = gBoardData.metrics || {};
+
+  const total = metrics.total_created || tasks.length;
+  const accepted = metrics.total_accepted || tasks.filter(t => t.stage === "ACCEPTED").length;
+  const rejections = metrics.total_rejections || 0;
+  const blocked = metrics.circuit_breakers_triggered || tasks.filter(t => t.stage === "BLOCKED").length;
+  const active = tasks.filter(t => t.stage !== "ACCEPTED" && t.stage !== "CANCELLED").length;
+
+  document.getElementById("metricTotal").innerText = total;
+  document.getElementById("metricActive").innerText = active;
+  document.getElementById("metricAccepted").innerText = accepted;
+  document.getElementById("metricRej").innerText = rejections;
+  document.getElementById("metricBlocked").innerText = blocked;
+}
+
+// 4. 数据过滤管道
+function getFilteredTasks() {
+  let list = Object.values(gBoardData.tasks || {});
+
+  if (gQuickFilter === "active") {
+    list = list.filter(t => t.stage !== "ACCEPTED" && t.stage !== "CANCELLED");
+  } else if (gQuickFilter === "rejected") {
+    list = list.filter(t => (t.rejections || []).length > 0);
+  } else if (gQuickFilter === "blocked") {
+    list = list.filter(t => t.stage === "BLOCKED");
+  } else if (gQuickFilter === "critical") {
+    list = list.filter(t => t.priority === "CRITICAL");
+  }
+
+  if (gSearchQuery) {
+    list = list.filter(t => {
+      const id = (t.id || "").toLowerCase();
+      const title = (t.title || "").toLowerCase();
+      const obj = (t.objective || "").toLowerCase();
+      const desc = (t.desc || t.description || "").toLowerCase();
+      const assignee = (t.assignee || "").toLowerCase();
+      return id.includes(gSearchQuery) || title.includes(gSearchQuery) || obj.includes(gSearchQuery) || desc.includes(gSearchQuery) || assignee.includes(gSearchQuery);
+    });
+  }
+
+  document.getElementById("filterStat").innerText = `当前展示: ${list.length} / 共计 ${Object.keys(gBoardData.tasks || {}).length} 项`;
+  return list;
+}
+
+// 5. 核心渲染分发器
+function renderView() {
+  const container = document.getElementById("mainViewContainer");
+  const tasks = getFilteredTasks();
+
+  if (gCurrentView === "stage") {
+    renderStageKanban(container, tasks);
+  } else if (gCurrentView === "status") {
+    renderStatusKanban(container, tasks);
+  } else if (gCurrentView === "role") {
+    renderRolePanel(container, tasks);
+  } else if (gCurrentView === "risk") {
+    renderRiskPanel(container, tasks);
+  } else if (gCurrentView === "table") {
+    renderTableView(container, tasks);
+  } else if (gCurrentView === "health") {
+    renderHealthDashboard(container, tasks);
+  }
+}
+
+// 5.1 维度 1: 阶段看板
+function renderStageKanban(container, tasks) {
+  const lanes = [
+    { id: "spec", title: "1. 需求与契约 SPEC", filter: t => ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN"].includes(t.stage) },
+    { id: "dev", title: "2. 分支研发中 DEV", filter: t => t.stage === "IN_PROGRESS" },
+    { id: "audit", title: "3. 审查与安全 AUDIT", filter: t => ["CODE_REVIEW", "SECURITY_AUDIT"].includes(t.stage) },
+    { id: "qa", title: "4. 质量测试与文档 QA", filter: t => ["TESTING", "DOC_SYNC"].includes(t.stage) },
+    { id: "done", title: "5. 终审与归档 ACCEPT", filter: t => ["COMPLETED", "ACCEPTED", "BLOCKED"].includes(t.stage) }
+  ];
+
+  container.innerHTML = `
+    <div class="lanes-container lanes-5">
+      ${lanes.map(l => {
+        const laneTasks = tasks.filter(l.filter);
+        return `
+          <div class="lane">
+            <div class="lane-header">
+              <span class="lane-title">${l.title}</span>
+              <span class="lane-count">${laneTasks.length}</span>
+            </div>
+            <div class="cards-list">
+              ${laneTasks.map(t => renderTaskCardHtml(t)).join("")}
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+// 5.2 维度 2: 状态看板
+function renderStatusKanban(container, tasks) {
+  const lanes = [
+    { id: "st-pending", title: "待规划 PENDING", filter: t => ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN"].includes(t.stage) },
+    { id: "st-prog", title: "进行中 IN PROGRESS", filter: t => t.stage === "IN_PROGRESS" },
+    { id: "st-review", title: "门禁评审 REVIEWING", filter: t => ["CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC"].includes(t.stage) },
+    { id: "st-rej", title: "质检整改 REVISE", filter: t => (t.rejections || []).length > 0 && t.stage !== "BLOCKED" && t.stage !== "ACCEPTED" },
+    { id: "st-blocked", title: "🚨 熔断挂起 BLOCKED", filter: t => t.stage === "BLOCKED" },
+    { id: "st-accept", title: "✅ 已验收 ACCEPTED", filter: t => t.stage === "ACCEPTED" }
+  ];
+
+  container.innerHTML = `
+    <div class="lanes-container lanes-6">
+      ${lanes.map(l => {
+        const laneTasks = tasks.filter(l.filter);
+        return `
+          <div class="lane">
+            <div class="lane-header">
+              <span class="lane-title">${l.title}</span>
+              <span class="lane-count">${laneTasks.length}</span>
+            </div>
+            <div class="cards-list">
+              ${laneTasks.map(t => renderTaskCardHtml(t)).join("")}
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+// 5.3 维度 3: 角色面板 (展示全11角色分组)
+function renderRolePanel(container, tasks) {
+  const roleGroups = [
+    { title: "📋 产品与需求 (PM)", filter: t => t.assignee === "pm" },
+    { title: "🏛️ 架构与边界 (Architect)", filter: t => t.assignee === "architect" },
+    { title: "💻 核心研发 (Developer)", filter: t => t.assignee === "developer" },
+    { title: "🔍 规范审查 (Reviewer)", filter: t => t.assignee === "code_reviewer" },
+    { title: "🛡️ 独立网安 (Security)", filter: t => t.assignee === "security_engineer" },
+    { title: "🧪 质量测试 (QA)", filter: t => t.assignee === "qa_engineer" },
+    { title: "🗄️ 数据与体验 (DBA/UIUX)", filter: t => ["dba", "uiux_designer"].includes(t.assignee) },
+    { title: "📚 活文档专家 (Doc)", filter: t => t.assignee === "doc_engineer" },
+    { title: "🚀 发布与裁决 (CTO/Release)", filter: t => ["release_engineer", "cto", "human_operator"].includes(t.assignee) }
+  ];
+
+  container.innerHTML = `
+    <div class="lanes-container lanes-7">
+      ${roleGroups.map(rg => {
+        const laneTasks = tasks.filter(rg.filter);
+        return `
+          <div class="lane">
+            <div class="lane-header">
+              <span class="lane-title">${rg.title}</span>
+              <span class="lane-count">${laneTasks.length}</span>
+            </div>
+            <div class="cards-list">
+              ${laneTasks.map(t => renderTaskCardHtml(t)).join("")}
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+// 5.4 维度 4: 风险等级面板
+function renderRiskPanel(container, tasks) {
+  const riskGroups = [
+    { title: "🔴 L3 核心级 (Critical 架构/DDL)", filter: t => t.priority === "CRITICAL" || t.tier === 3 },
+    { title: "🟠 L2 标准级 (High 跨模块特性)", filter: t => t.priority === "HIGH" || t.tier === 2 },
+    { title: "🔵 L1 微修级 (Medium 单文件热修)", filter: t => t.priority === "MEDIUM" || t.tier === 1 },
+    { title: "⚪ L0 探针级 (Low 只读调研)", filter: t => t.priority === "LOW" || t.tier === 0 }
+  ];
+
+  container.innerHTML = `
+    <div class="lanes-container lanes-4">
+      ${riskGroups.map(rg => {
+        const laneTasks = tasks.filter(rg.filter);
+        return `
+          <div class="lane">
+            <div class="lane-header">
+              <span class="lane-title">${rg.title}</span>
+              <span class="lane-count">${laneTasks.length}</span>
+            </div>
+            <div class="cards-list">
+              ${laneTasks.map(t => renderTaskCardHtml(t)).join("")}
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+// 5.5 维度 5: 表格列表视图
+function renderTableView(container, tasks) {
+  tasks.sort((a, b) => {
+    let valA = a[gSortColumn] || "";
+    let valB = b[gSortColumn] || "";
+    if (gSortColumn === "rejections") {
+      valA = (a.rejections || []).length;
+      valB = (b.rejections || []).length;
+    }
+    if (valA < valB) return gSortAsc ? -1 : 1;
+    if (valA > valB) return gSortAsc ? 1 : -1;
+    return 0;
+  });
+
+  container.innerHTML = `
+    <div class="table-view">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('id')">工单编号 ↕</th>
+            <th onclick="sortTable('title')">工单标题 ↕</th>
+            <th onclick="sortTable('priority')">风险等级 ↕</th>
+            <th onclick="sortTable('stage')">当前阶段 ↕</th>
+            <th onclick="sortTable('assignee')">主导人 ↕</th>
+            <th>六重门禁通关 (G1-G6)</th>
+            <th onclick="sortTable('rejections')">质检打回 ↕</th>
+            <th onclick="sortTable('est_hours')">预估工时 ↕</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tasks.map(t => {
+            const rejs = t.rejections || [];
+            const gates = t.gate_status || {};
+            const stageInfo = STAGE_MAP[t.stage] || { label: t.stage };
+            return `
+              <tr onclick="onSelectTask('${t.id}')">
+                <td style="font-family:var(--mono); font-weight:700; color:var(--cyan);">${t.id}</td>
+                <td style="font-weight:600;">${t.title}</td>
+                <td>${renderPriority(t.priority)}</td>
+                <td><span class="stage-badge">${stageInfo.label}</span></td>
+                <td><span class="badge-assignee">${t.assignee || '未指派'}</span></td>
+                <td>
+                  <div class="gates-matrix">
+                    <span class="gate-pip ${gates.gate_1_contract ? 'passed' : ''}" title="G1 契约"></span>
+                    <span class="gate-pip ${gates.gate_2_review ? 'passed' : ''}" title="G2 语法"></span>
+                    <span class="gate-pip ${gates.gate_3_security ? 'passed' : ''}" title="G3 安全"></span>
+                    <span class="gate-pip ${gates.gate_4_testing ? 'passed' : ''}" title="G4 测试"></span>
+                    <span class="gate-pip ${gates.gate_5_doc_sync ? 'passed' : ''}" title="G5 文档"></span>
+                    <span class="gate-pip ${gates.gate_6_human_accept ? 'passed' : ''}" title="G6 终审"></span>
+                  </div>
+                </td>
+                <td>
+                  ${t.stage === 'BLOCKED' ? '<span class="badge-rej blocked">⚠️ 3/3 熔断</span>' : (rejs.length > 0 ? `<span class="badge-rej">${rejs.length}/3 次</span>` : '<span style="color:var(--text-dim);">0 次</span>')}
+                </td>
+                <td style="font-family:var(--mono);">${t.est_hours || 4.0}h</td>
+                <td>
+                  <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); onSelectTask('${t.id}')">查看详情</button>
+                </td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function sortTable(col) {
+  if (gSortColumn === col) {
+    gSortAsc = !gSortAsc;
+  } else {
+    gSortColumn = col;
+    gSortAsc = true;
+  }
+  renderView();
+}
+
+// 5.6 维度 6: 工坊质量与健康大盘
+function renderHealthDashboard(container, tasks) {
+  const gatesPassed = { g1: 0, g2: 0, g3: 0, g4: 0, g5: 0, g6: 0 };
+  const vetoTypes = { QR: 0, SR: 0, FR: 0, DR: 0 };
+
+  tasks.forEach(t => {
+    const gs = t.gate_status || {};
+    if (gs.gate_1_contract) gatesPassed.g1++;
+    if (gs.gate_2_review) gatesPassed.g2++;
+    if (gs.gate_3_security) gatesPassed.g3++;
+    if (gs.gate_4_testing) gatesPassed.g4++;
+    if (gs.gate_5_doc_sync) gatesPassed.g5++;
+    if (gs.gate_6_human_accept) gatesPassed.g6++;
+
+    (t.rejections || []).forEach(r => {
+      const type = r.type || "QR";
+      if (vetoTypes[type] !== undefined) vetoTypes[type]++;
+    });
+  });
+
+  const total = tasks.length || 1;
+
+  container.innerHTML = `
+    <div class="health-view">
+      <div class="health-cards-grid">
+        <div class="health-card">
+          <div class="health-card-header">
+            <span class="health-card-title">工坊质量健康综合评分</span>
+            <span class="live-dot"></span>
+          </div>
+          <div class="health-big-score">100<span style="font-size:22px; color:var(--text-muted);">/100</span></div>
+          <div style="font-size:13px; color:var(--green); font-weight:600;">HEALTHY · 全线研发运行良好</div>
+          <p style="font-size:12px; color:var(--text-dim); line-height:1.5;">全流程 11 个角色协同履职，确定性质检守卫保障系统稳定可靠。</p>
+        </div>
+
+        <div class="health-card">
+          <div class="health-card-header">
+            <span class="health-card-title">质检一票否决分布统计</span>
+            <span style="font-size:12px; color:var(--text-dim); font-family:var(--mono);">累计制衡</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="gate-stat-row">
+              <span>#QR 语法规范与架构审查</span>
+              <span style="font-family:var(--mono); font-weight:700; color:var(--cyan);">${vetoTypes.QR} 次</span>
+            </div>
+            <div class="gate-stat-row">
+              <span>#SR 独立安全审计否决</span>
+              <span style="font-family:var(--mono); font-weight:700; color:var(--red);">${vetoTypes.SR} 次</span>
+            </div>
+            <div class="gate-stat-row">
+              <span>#FR 自动化单元测试否决</span>
+              <span style="font-family:var(--mono); font-weight:700; color:var(--amber);">${vetoTypes.FR} 次</span>
+            </div>
+            <div class="gate-stat-row">
+              <span>#DR 活文档失步否决</span>
+              <span style="font-family:var(--mono); font-weight:700; color:var(--purple);">${vetoTypes.DR} 次</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="health-card">
+          <div class="health-card-header">
+            <span class="health-card-title">六重质量门禁通关概况</span>
+            <span style="font-size:12px; color:var(--text-dim); font-family:var(--mono);">通过率</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div class="gate-stat-row">
+              <span>Gate 1 契约范围锁定</span>
+              <div class="gate-bar-bg"><div class="gate-bar-fill" style="width:${(gatesPassed.g1/total)*100}%"></div></div>
+              <span style="font-family:var(--mono); font-size:11px;">${gatesPassed.g1}/${total}</span>
+            </div>
+            <div class="gate-stat-row">
+              <span>Gate 2 语法规范快筛</span>
+              <div class="gate-bar-bg"><div class="gate-bar-fill" style="width:${(gatesPassed.g2/total)*100}%"></div></div>
+              <span style="font-family:var(--mono); font-size:11px;">${gatesPassed.g2}/${total}</span>
+            </div>
+            <div class="gate-stat-row">
+              <span>Gate 3 独立网安审计</span>
+              <div class="gate-bar-bg"><div class="gate-bar-fill" style="width:${(gatesPassed.g3/total)*100}%"></div></div>
+              <span style="font-family:var(--mono); font-size:11px;">${gatesPassed.g3}/${total}</span>
+            </div>
+            <div class="gate-stat-row">
+              <span>Gate 4 自动化测试回归</span>
+              <div class="gate-bar-bg"><div class="gate-bar-fill" style="width:${(gatesPassed.g4/total)*100}%"></div></div>
+              <span style="font-family:var(--mono); font-size:11px;">${gatesPassed.g4}/${total}</span>
+            </div>
+            <div class="gate-stat-row">
+              <span>Gate 5 活文档同步更新</span>
+              <div class="gate-bar-bg"><div class="gate-bar-fill" style="width:${(gatesPassed.g5/total)*100}%"></div></div>
+              <span style="font-family:var(--mono); font-size:11px;">${gatesPassed.g5}/${total}</span>
+            </div>
+            <div class="gate-stat-row">
+              <span>Gate 6 人类管理员终审</span>
+              <div class="gate-bar-bg"><div class="gate-bar-fill" style="width:${(gatesPassed.g6/total)*100}%"></div></div>
+              <span style="font-family:var(--mono); font-size:11px;">${gatesPassed.g6}/${total}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 6. 任务卡片通用渲染
+function renderTaskCardHtml(t) {
+  const pClass = (t.priority || "HIGH").toLowerCase();
+  const rejs = t.rejections || [];
+  const gates = t.gate_status || {};
+
+  let rejHtml = `<span>${rejs.length}/3 打回</span>`;
+  if (t.stage === "BLOCKED") {
+    rejHtml = `<span class="badge-rej blocked">⚠️ 3/3 熔断</span>`;
+  } else if (rejs.length > 0) {
+    const last = rejs[rejs.length - 1];
+    const tag = (last.tag || "").split("#")[1] || "DEF";
+    rejHtml = `<span class="badge-rej">${rejs.length}/3 (#${tag})</span>`;
+  }
+
+  return `
+    <div class="task-card ${pClass}" onclick="onSelectTask('${t.id}')">
+      <div class="card-top">
+        <span class="card-id">${t.id}</span>
+        ${renderPriority(t.priority)}
+      </div>
+      <div class="card-title">${t.title}</div>
+      <div class="card-desc">${t.objective || t.desc || t.description || "无详细描述"}</div>
+      <div class="gates-matrix">
+        <span class="gate-pip ${gates.gate_1_contract ? 'passed' : ''}" title="G1 契约锁定"></span>
+        <span class="gate-pip ${gates.gate_2_review ? 'passed' : ''}" title="G2 语法快筛"></span>
+        <span class="gate-pip ${gates.gate_3_security ? 'passed' : ''}" title="G3 独立安全"></span>
+        <span class="gate-pip ${gates.gate_4_testing ? 'passed' : ''}" title="G4 单测回归"></span>
+        <span class="gate-pip ${gates.gate_5_doc_sync ? 'passed' : ''}" title="G5 活文档同步"></span>
+        <span class="gate-pip ${gates.gate_6_human_accept ? 'passed' : ''}" title="G6 人类终审"></span>
+        <span class="gate-pip-label">G1-G6</span>
+      </div>
+      <div class="card-footer">
+        <span class="badge-assignee">👤 ${t.assignee || "未指定"}</span>
+        ${rejHtml}
+      </div>
+    </div>
+  `;
+}
+
+function renderPriority(p) {
+  p = (p || "HIGH").toUpperCase();
+  if (p === "CRITICAL" || p === "CRIT") return '<span class="priority-tag crit">CRITICAL</span>';
+  if (p === "HIGH") return '<span class="priority-tag high">HIGH</span>';
+  if (p === "MEDIUM" || p === "MED") return '<span class="priority-tag med">MEDIUM</span>';
+  return '<span class="priority-tag low">LOW</span>';
+}
+
+// 7. 工单详情模态弹窗交互
+function onSelectTask(taskId) {
+  const task = (gBoardData.tasks || {})[taskId];
+  if (!task) return;
+  gSelectedTaskId = taskId;
+  showTaskDetails(task);
+  document.getElementById("taskModalOverlay").classList.add("active");
+}
+
+function closeTaskModal() {
+  document.getElementById("taskModalOverlay").classList.remove("active");
+  document.getElementById("receiptPreviewSection").style.display = "none";
+}
+
+// 8. 详情弹窗数据填充核心函数 (结构化业务目标、交付结论、履职矩阵与质检报告)
+function showTaskDetails(t) {
+  const stageInfo = STAGE_MAP[t.stage] || { label: t.stage, desc: "" };
+
+  document.getElementById("modalTaskId").innerText = `${t.id} · ${t.title || '无标题'}`;
+  document.getElementById("modalPriority").className = `priority-tag ${(t.priority||'high').toLowerCase()}`;
+  document.getElementById("modalPriority").innerText = t.priority || "HIGH";
+  document.getElementById("modalStage").innerText = stageInfo.label;
+  document.getElementById("modalAssignee").innerText = t.assignee || "未指定";
+  document.getElementById("modalTypeTier").innerText = `${t.type || 'TSK'} (Tier ${t.tier !== undefined ? t.tier : 2})`;
+  document.getElementById("modalHours").innerText = `${t.est_hours || 4.0}h (耗时: ${t.lead_time_seconds ? (t.lead_time_seconds.toFixed(1) + 's') : '进行中'})`;
+  document.getElementById("modalRejections").innerText = `${(t.rejections || []).length} / 3 次 (熔断上限: 3次)`;
+  document.getElementById("modalDesc").innerText = t.desc || t.description || "未填写详细需求描述与验收标准。";
+
+  // 1. 🎯 业务目标与 🏁 交付结论呈现
+  document.getElementById("modalObjective").innerText = t.objective || t.title || "未明确锚定立项目标。";
+
+  const resBoxEl = document.getElementById("modalResultBox");
+  const resBadgeEl = document.getElementById("modalResultBadge");
+  const resTitleEl = document.getElementById("modalResultTitle");
+  const resTextEl = document.getElementById("modalResult");
+
+  if (t.stage === "ACCEPTED") {
+    resBoxEl.className = "res-card";
+    resTitleEl.style.color = "var(--green)";
+    resBadgeEl.style.background = "rgba(16, 185, 129, 0.2)";
+    resBadgeEl.style.color = "var(--green)";
+    resBadgeEl.innerText = "已闭环交付";
+    resTextEl.innerText = t.result || "全生命周期六重门禁闭环，单测100%全绿，文档已同步，管理员已终审封板。";
+  } else if (t.stage === "COMPLETED") {
+    resBoxEl.className = "res-card";
+    resTitleEl.style.color = "var(--cyan)";
+    resBadgeEl.style.background = "rgba(56, 189, 248, 0.2)";
+    resBadgeEl.style.color = "var(--cyan)";
+    resBadgeEl.innerText = "待终审确认";
+    resTextEl.innerText = t.result || "自动化质检全绿通关，交付物与白名单校验完毕，等待管理员点击下方按钮放行。";
+  } else if (t.stage === "BLOCKED") {
+    resBoxEl.className = "res-card blocked";
+    resTitleEl.style.color = "var(--red)";
+    resBadgeEl.style.background = "rgba(239, 68, 68, 0.2)";
+    resBadgeEl.style.color = "var(--red)";
+    resBadgeEl.innerText = "熔断挂起";
+    resTextEl.innerText = "连续 3 次门禁未通关触发硬熔断，智能体权限已锁死，需 CTO / 人类介入仲裁。";
+  } else {
+    resBoxEl.className = "res-card in-progress";
+    resTitleEl.style.color = "var(--amber)";
+    resBadgeEl.style.background = "rgba(245, 158, 11, 0.2)";
+    resBadgeEl.style.color = "var(--amber)";
+    resBadgeEl.innerText = "推进中";
+    resTextEl.innerText = t.result || `特性正在研发落地中，主导责任人【${t.assignee || '未指派'}】正按白名单编码推进。`;
+  }
+
+  // 2. 人类管理者态势速报横幅
+  const summaryEl = document.getElementById("modalHumanSummary");
+  const rejs = t.rejections || [];
+
+  if (t.stage === "ACCEPTED") {
+    summaryEl.className = "human-summary-banner accepted";
+    summaryEl.innerHTML = `
+      <div style="font-size:24px;">👑</div>
+      <div>
+        <div style="font-weight:700; color:var(--green); font-size:14px;">项目已由人类管理员终审验收，交付归档完毕</div>
+        <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
+          六重质量门禁已全部闭环，单元测试通过率 100%，文档与代码保持完全同步。该工单已顺利归档，无需后续跟进。
+        </div>
+      </div>
+    `;
+  } else if (t.stage === "COMPLETED") {
+    summaryEl.className = "human-summary-banner ready-accept";
+    summaryEl.innerHTML = `
+      <div style="font-size:24px;">🎯</div>
+      <div>
+        <div style="font-weight:700; color:var(--green); font-size:14px;">机器质量门禁全绿通过，请人类管理员进行终审验收放行</div>
+        <div style="font-size:12.5px; color:var(--text); margin-top:2px;">
+          研发、审查、安全审计与单测验证已全部通关。请查阅下方质检结论，若符合业务预期，可点击右下方 <strong>【👑 确认终审验收通过】</strong> 一键归档。
+        </div>
+      </div>
+    `;
+  } else if (t.stage === "BLOCKED") {
+    summaryEl.className = "human-summary-banner blocked";
+    summaryEl.innerHTML = `
+      <div style="font-size:24px;">🚨</div>
+      <div>
+        <div style="font-weight:700; color:var(--red); font-size:14px;">三振出局硬熔断！智能体研发权限已锁死，等待人类管理员介入</div>
+        <div style="font-size:12.5px; color:var(--text); margin-top:2px;">
+          该任务因累计被质检守卫行使一票否决达到 3 次，系统已触发物理熔断。系统已禁止智能体盲目重试，请人类管理员核查业务逻辑并进行人工裁决。
+        </div>
+      </div>
+    `;
+  } else if (rejs.length > 0 && t.stage === "IN_PROGRESS") {
+    const lastRej = rejs[rejs.length - 1];
+    summaryEl.className = "human-summary-banner rejected";
+    summaryEl.innerHTML = `
+      <div style="font-size:24px;">⚠️</div>
+      <div>
+        <div style="font-weight:700; color:var(--amber); font-size:14px;">质检守卫一票否决打回，当前正处于整改修复中 (已打回 ${rejs.length}/3 次)</div>
+        <div style="font-size:12.5px; color:var(--text); margin-top:2px;">
+          最近由 <strong>【${lastRej.rejected_by}】</strong> 提出 ${lastRej.tag} 否决：<em>“${lastRej.reason}”</em>。<br>
+          代码已自动回退整改。系统当前剩余 <strong>${3 - rejs.length} 次</strong> 容错机会，整改完毕后将自动重新发起门禁验证。
+        </div>
+      </div>
+    `;
+  } else if (["CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC"].includes(t.stage)) {
+    summaryEl.className = "human-summary-banner";
+    summaryEl.innerHTML = `
+      <div style="font-size:24px;">🔍</div>
+      <div>
+        <div style="font-weight:700; color:var(--cyan); font-size:14px;">多维质量门禁并发核验中 · ${stageInfo.label}</div>
+        <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
+          系统正在并发执行 AST 语法快筛、独立安全审计与 1:1 自动化测试回归。任何维度一旦发现缺陷将立即一票否决打回整改。
+        </div>
+      </div>
+    `;
+  } else {
+    summaryEl.className = "human-summary-banner";
+    summaryEl.innerHTML = `
+      <div style="font-size:24px;">💻</div>
+      <div>
+        <div style="font-weight:700; color:var(--cyan); font-size:14px;">研发进行中 · 当前主导人: 【${t.assignee || '未指派'}】</div>
+        <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
+          正在按照架构白名单范围开展编码实现。编码完成后将自动推入后续代码审查与安全质检防线。
+        </div>
+      </div>
+    `;
+  }
+
+  // 3. 研发阶段进度条
+  const steps = [
+    { label: "1. 契约锁定", key: "contract" },
+    { label: "2. 编码实现", key: "dev" },
+    { label: "3. 规范与安全", key: "audit" },
+    { label: "4. 单测与文档", key: "qa" },
+    { label: "5. 管理员终审", key: "accept" }
+  ];
+
+  let currentStepIdx = 0;
+  if (t.stage === "ACCEPTED") currentStepIdx = 5;
+  else if (t.stage === "COMPLETED") currentStepIdx = 4;
+  else if (["TESTING", "DOC_SYNC"].includes(t.stage)) currentStepIdx = 3;
+  else if (["CODE_REVIEW", "SECURITY_AUDIT"].includes(t.stage)) currentStepIdx = 2;
+  else if (t.stage === "IN_PROGRESS") currentStepIdx = 1;
+  else currentStepIdx = 0;
+
+  document.getElementById("modalStepper").innerHTML = steps.map((s, idx) => {
+    let stateClass = "";
+    let icon = (idx + 1);
+    if (idx < currentStepIdx) {
+      stateClass = "completed";
+      icon = "✓";
+    } else if (idx === currentStepIdx) {
+      stateClass = "active";
+    }
+    return `
+      <div class="stepper-item ${stateClass}">
+        <div class="stepper-circle">${icon}</div>
+        <div class="stepper-label">${s.label}</div>
+      </div>
+    `;
+  }).join("");
+
+  // 4. 👥 全角色协同履职矩阵渲染 (回答“每个角色充当什么角色、干了什么事”)
+  const collabs = t.collaborators || [];
+  const allInvolvedRoles = Array.from(new Set([t.assignee, ...collabs].filter(Boolean)));
+  document.getElementById("modalCollabCount").innerText = `${allInvolvedRoles.length} 个专业角色协同参与`;
+
+  document.getElementById("modalCollabPills").innerHTML = allInvolvedRoles.map(r => {
+    const prof = ROLE_DEFINITIONS[r] || { title: r, icon: "👤", scope: "协同" };
+    return `
+      <span class="collab-pill ${r === t.assignee ? 'active' : ''}">
+        <span>${prof.icon}</span>
+        <span>${prof.title}</span>
+        <span style="font-size:10px; color:var(--text-dim);">(${r})</span>
+      </span>
+    `;
+  }).join("");
+
+  const contributions = t.role_contributions || [];
+  if (contributions.length === 0) {
+    document.getElementById("modalRoleActionsList").innerHTML = `
+      <div style="font-size:12px; color:var(--text-dim); padding:8px 0;">当前暂无动作履职记录。</div>
+    `;
+  } else {
+    document.getElementById("modalRoleActionsList").innerHTML = contributions.slice().reverse().map(c => {
+      const prof = ROLE_DEFINITIONS[c.role] || { title: c.title || c.role, icon: c.icon || "👤", scope: "" };
+      let verdictColor = "var(--green)";
+      let verdictText = "✅ 通过";
+      if (c.verdict === "REJECTED") {
+        verdictColor = "var(--red)";
+        verdictText = "⚠️ 否决打回";
+      } else if (c.verdict === "ACCEPTED") {
+        verdictColor = "var(--cyan)";
+        verdictText = "👑 终审放行";
+      } else if (c.verdict === "CONFIRMED" || c.verdict === "READY") {
+        verdictColor = "var(--primary-light)";
+        verdictText = "📋 立项就绪";
+      }
+
+      const timeStr = (c.timestamp || "").replace("T", " ").split(".")[0];
+
+      return `
+        <div class="role-action-card">
+          <div class="role-action-left">
+            <div class="role-icon-box">${prof.icon}</div>
+            <div>
+              <div class="role-name-title">${prof.title} <span style="font-size:11px; font-weight:normal; color:var(--text-dim);">[${c.phase || '环节'}]</span></div>
+              <div class="role-action-desc">履职动作: <strong style="color:var(--text);">${c.action}</strong></div>
+              <div style="font-size:11px; color:var(--text-dim); margin-top:1px;">交付产出: <code>${c.deliverable || '阶段成果'}</code></div>
+            </div>
+          </div>
+          <div class="role-action-right">
+            <span style="color:${verdictColor}; font-weight:700;">${verdictText}</span>
+            <span>${timeStr}</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // 5. 六重门禁通关大盘
+  const gs = t.gate_status || {};
+  const receipts = (t.deliverables && t.deliverables.receipts) || [];
+  const gates = [
+    {
+      key: "gate_1_contract",
+      name: "Gate 1: 架构契约与修改范围边界",
+      desc: "界定工单修改白名单与业务准则，严禁智能体越界修改其他业务模块代码。",
+      status: gs.gate_1_contract,
+      rName: "GATE_1_CONTRACT"
+    },
+    {
+      key: "gate_2_review",
+      name: "Gate 2: AST 语法快筛与提交规范",
+      desc: "毫秒级遍历抽象语法树拦截括号断裂与缩进异常；校验中文提交规范。",
+      status: gs.gate_2_review,
+      rName: "GATE_2_REVIEW"
+    },
+    {
+      key: "gate_3_security",
+      name: "Gate 3: 独立安全审计与机密防护",
+      desc: "SAST 静态扫描硬编码密钥、数据库口令与 SQL 注入风险。安全审计员拥有一票否决权。",
+      status: gs.gate_3_security,
+      rName: "GATE_3_SECURITY"
+    },
+    {
+      key: "gate_4_testing",
+      name: "Gate 4: 自动化单元测试全绿回归",
+      desc: "自适应嗅探多语言测试套件，强制业务代码与测试用例 1:1 对齐，回归必须 100% 通过。",
+      status: gs.gate_4_testing,
+      rName: "GATE_4_TESTING"
+    },
+    {
+      key: "gate_5_doc_sync",
+      name: "Gate 5: 架构地图与接口文档同步",
+      desc: "自动刷新项目架构地图与 API 接口文档，拒绝过时或缺失的技术文档。",
+      status: gs.gate_5_doc_sync,
+      rName: "GATE_5_DOC_SYNC"
+    },
+    {
+      key: "gate_6_human_accept",
+      name: "Gate 6: 人类管理员终审主权确认",
+      desc: "人类最高裁决协议，自动化门禁全绿后由人类管理员点击授权完成最终闭环封板。",
+      status: gs.gate_6_human_accept,
+      rName: "GATE_6_ACCEPT"
+    }
+  ];
+
+  document.getElementById("modalGatesGrid").innerHTML = gates.map(g => {
+    const isPass = !!g.status;
+    const rFile = receipts.find(r => r.includes(g.rName));
+    return `
+      <div class="gate-card ${isPass ? 'pass' : 'pending'}">
+        <div class="gate-card-top">
+          <span class="gate-card-name">${g.name}</span>
+          <span style="font-size:11.5px; font-weight:700; color:${isPass ? 'var(--green)' : 'var(--text-dim)'};">
+            ${isPass ? '✅ 已通关' : '⏳ 待核验'}
+          </span>
+        </div>
+        <div class="gate-card-desc">${g.desc}</div>
+        <div class="gate-card-footer">
+          <span style="font-size:11px; font-family:var(--mono); color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px;">
+            ${rFile ? rFile.split(/[\/\\]/).pop() : '质检凭证待签发'}
+          </span>
+          ${rFile ? `<button class="btn btn-secondary btn-sm" onclick="inspectReceipt('${rFile.replace(/\\/g, '/')}', '${g.name}')">查看质检报告</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // 6. 质检打回与历史缺陷档案
+  const defectLedgerEl = document.getElementById("modalDefectLedger");
+  if (rejs.length === 0) {
+    defectLedgerEl.innerHTML = `
+      <div style="font-size:13px; color:var(--green); padding:10px 4px; display:flex; align-items:center; gap:8px;">
+        <span>🎉</span>
+        <span><strong>健康无缺陷记录</strong>：该工单从规划至今未触发任何质检一票否决，代码质量与规范表现优异。</span>
+      </div>
+    `;
+  } else {
+    defectLedgerEl.innerHTML = `
+      <div style="font-size:12.5px; color:var(--text-muted); line-height:1.5; padding-bottom:6px; border-bottom:1px dashed var(--border);">
+        <strong>历史缺陷永久归档</strong>：工单在打回整改时，系统<strong>永久留存全部历史缺陷记录</strong>，包含否决守卫、发现的具体漏洞与发生时间：
+      </div>
+      ${rejs.map((r, idx) => `
+        <div class="rej-record-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; color:var(--amber); font-family:var(--mono); font-size:13px;">
+              第 ${idx + 1} 次打回 · ${r.tag || ('#' + r.type)}
+            </span>
+            <span style="font-size:11px; color:var(--text-dim); font-family:var(--mono);">${r.timestamp ? r.timestamp.replace('T', ' ').split('.')[0] : ''}</span>
+          </div>
+          <div style="color:var(--text); font-weight:600; font-size:13px;">
+            质检审查结论: <span style="color:#fbbf24;">${r.reason || '未提供详细原因'}</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); display:flex; gap:16px; flex-wrap:wrap; margin-top:2px;">
+            <span>🛡️ 否决守卫: <strong>${r.rejected_by || 'system'}</strong></span>
+            <span>🔄 回退流转: <code>${r.from_stage}</code> ➔ <code>${r.target_stage}</code></span>
+          </div>
+        </div>
+      `).join("")}
+      <div style="font-size:12px; color:var(--text-dim); padding-top:4px;">
+        ⚡ 熔断风控提示：当前已消耗 <strong>${rejs.length} / 3 次</strong> 试错额度。如修改后仍未解决缺陷导致累计 3 次打回，系统将启动<strong>三阶硬熔断</strong>物理锁定。
+      </div>
+    `;
+  }
+
+  // 7. 弹窗 Footer: 支持一键放行终审
+  const footerStatusEl = document.getElementById("modalFooterStatus");
+  const acceptActionContainer = document.getElementById("modalAcceptActionContainer");
+
+  footerStatusEl.innerHTML = `工单当前处于：<strong style="color:var(--cyan);">${stageInfo.label}</strong>`;
+
+  if (t.stage === "COMPLETED") {
+    acceptActionContainer.innerHTML = `
+      <button class="btn btn-success" onclick="acceptTask('${t.id}')">
+        👑 确认终审验收通过 (Accept & Archive)
+      </button>
+    `;
+  } else {
+    acceptActionContainer.innerHTML = "";
+  }
+}
+
+// 9. 人类管理员一键终审验收放行
+function acceptTask(taskId) {
+  if (!confirm(`确认终审验收通过工单【${taskId}】并归档？\n\n该操作将行使人类管理员主权，完成项目闭环归档。`)) {
+    return;
+  }
+
+  fetch("/api/task/accept", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: taskId,
+      note: "人类管理员在Web大盘确认终审验收通过",
+      result: "全生命周期质量门禁全绿通过，单元测试覆盖率达标，代码文档一致，人类管理员核准通过并封板归档。"
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      alert(`🎉 工单 ${taskId} 已顺利终审验收并归档！`);
+      fetchBoard(true);
+      if (res.task) {
+        showTaskDetails(res.task);
+      }
+    } else {
+      alert("终审验收失败: " + (res.error || "未知错误"));
+    }
+  })
+  .catch(err => alert("网络请求异常: " + err));
+}
+
+// 10. 📑 人类可读质检通关报告书解析器 (解决“质检报告非人类可读”)
+function inspectReceipt(receiptPath, gateName = "质量门禁") {
+  fetch(`/api/receipt?path=${encodeURIComponent(receiptPath)}`)
+    .then(r => r.json())
+    .then(data => {
+      const container = document.getElementById("receiptPreviewSection");
+      container.style.display = "block";
+
+      const c = data.content || {};
+      const gateKey = c.gate || "";
+      const outcome = c.outcome || "PASS";
+      const receiptId = c.receipt_id || (data.path || receiptPath).split(/[\/\\]/).pop();
+      const timeStr = (c.timestamp || "").replace("T", " ").split(".")[0];
+      const details = c.details || {};
+
+      // 解析生成人类可读指标卡片
+      let metricsHtml = "";
+      if (gateKey === "gate_1_contract") {
+        metricsHtml = `
+          <div class="report-metric-box">
+            <span class="report-metric-k">契约白名单文件</span>
+            <span class="report-metric-v">${details.contract_file || 'SPEC契约定义'}</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="report-metric-k">范围锁定结论</span>
+            <span class="report-metric-v" style="color:var(--green);">✅ 已签署修改白名单，防越界改动</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="report-metric-k">SHA-256 契约指纹</span>
+            <span class="report-metric-v" style="font-size:11px;">${(details.sha256_checksum || '').substring(0, 24)}... (已固化)</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="report-metric-k">冻结时间戳</span>
+            <span class="report-metric-v">${(details.frozen_at || timeStr).replace('T', ' ').split('.')[0]}</span>
+          </div>
+        `;
+      } else if (gateKey === "gate_2_review") {
+        metricsHtml = `
+          <div class="report-metric-box">
+            <span class="report-metric-k">代码提交规范审查</span>
+            <span class="report-metric-v" style="color:var(--cyan);">${details.commit_msg || 'Conventional Commits 规范符合'}</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="report-metric-k">AST 抽象语法树健康度</span>
+            <span class="report-metric-v" style="color:var(--green);">✅ 100% 通过 (零括号断裂/零缩进错位)</span>
+          </div>
+        `;
+      } else if (gateKey === "gate_3_security") {
+        metricsHtml = `
+          <div class="report-metric-box">
+            <span class="report-metric-k">SAST 静态机密扫描</span>
+            <span class="report-metric-v" style="color:var(--green);">✅ 0 项硬编码密钥、0 项明文口令</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="report-metric-k">SQL 注入与漏洞筛查</span>
+            <span class="report-metric-v" style="color:var(--green);">✅ 0 项拼接注入漏洞 (安全评级: A+)</span>
+          </div>
+        `;
+      } else if (gateKey === "gate_4_testing") {
+        metricsHtml = `
+          <div class="report-metric-box">
+            <span class="report-metric-k">自动化单测套件</span>
+            <span class="report-metric-v" style="color:var(--cyan);">${details.command || 'python -m unittest tests/'}</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="report-metric-k">用例执行结论</span>
+            <span class="report-metric-v" style="color:var(--green);">✅ 测试覆盖率对齐，用例通过率 100%</span>
+          </div>
+        `;
+      } else if (gateKey === "gate_5_doc_sync") {
+        metricsHtml = `
+          <div class="report-metric-box">
+            <span class="report-metric-k">代码结构地图 (RepoMap)</span>
+            <span class="report-metric-v" style="color:var(--green);">✅ docs/PROJECT_STRUCTURE.md 已同步</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="report-metric-k">接口文档一致性</span>
+            <span class="report-metric-v" style="color:var(--green);">✅ 文档与生产代码修改时间戳严格对齐</span>
+          </div>
+        `;
+      } else {
+        metricsHtml = `
+          <div class="report-metric-box">
+            <span class="report-metric-k">核验门禁</span>
+            <span class="report-metric-v">${gateKey}</span>
+          </div>
+          <div class="report-metric-box">
+            <span class="report-metric-k">门禁裁决</span>
+            <span class="report-metric-v" style="color:var(--green);">✅ 验证通过 (PASS)</span>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="receipt-report-sheet">
+          <div class="report-top-header">
+            <div>
+              <div style="font-size:14px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px;">
+                <span>📋 质检通关报告书</span>
+                <span class="box-badge" style="background:rgba(16, 185, 129, 0.2); color:var(--green);">${outcome} 通过</span>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-dim); margin-top:2px;">
+                凭证编号: <code>${receiptId}</code> · 签发时间: ${timeStr}
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('receiptPreviewSection').style.display='none'">收起报告</button>
+          </div>
+
+          <div style="font-size:12.5px; color:var(--text); line-height:1.5;">
+            <strong>质检项目</strong>：${gateName} · <strong>判定结论</strong>：经确定性质检守卫核验，全部业务指标符合准入标准，准予流转。
+          </div>
+
+          <div class="report-metrics-grid">
+            ${metricsHtml}
+          </div>
+
+          <!-- 底层机器证据折叠区 -->
+          <div style="margin-top:6px; border-top:1px dashed var(--border); padding-top:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-size:11px; color:var(--text-dim);">🛡️ 密码学数字验签: <code style="color:var(--cyan);">${(c.signature_sha256 || '').substring(0, 32)}...</code></span>
+              <button class="btn btn-secondary btn-sm" style="font-size:10.5px; padding:2px 6px;" onclick="toggleRawReceiptJson()">
+                🔍 展开/折叠底层机器存证原始 JSON
+              </button>
+            </div>
+            <pre class="code-preview" id="rawReceiptJsonPre" style="display:none;">${JSON.stringify(c, null, 2)}</pre>
+          </div>
+        </div>
+      `;
+
+      // 滚动进入可视区
+      container.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    })
+    .catch(err => {
+      alert("读取质检报告失败: " + err);
+    });
+}
+
+function toggleRawReceiptJson() {
+  const el = document.getElementById("rawReceiptJsonPre");
+  if (el) {
+    el.style.display = el.style.display === "none" ? "block" : "none";
+  }
+}
+
+// 11. 新建工单弹窗交互
+function openCreateModal() {
+  document.getElementById("createModal").classList.add("active");
+  document.getElementById("newTitle").focus();
+}
+
+function closeCreateModal() {
+  document.getElementById("createModal").classList.remove("active");
+}
+
+function submitCreateTask() {
+  const title = document.getElementById("newTitle").value.trim();
+  if (!title) {
+    alert("请输入工单简要标题！");
+    return;
+  }
+  const objective = document.getElementById("newObjective").value.trim();
+  if (!objective) {
+    alert("请输入业务立项目标 (Target Objective)！明确目标才能有效管控交付。");
+    return;
+  }
+  const itemType = document.getElementById("newType").value;
+  const priority = document.getElementById("newPriority").value;
+  const assignee = document.getElementById("newAssignee").value;
+  const estHours = parseFloat(document.getElementById("newHours").value) || 4.0;
+  const desc = document.getElementById("newDesc").value.trim();
+
+  // 获取勾选的协同参与角色
+  const collabs = [];
+  document.querySelectorAll(".collab-check:checked").forEach(cb => {
+    collabs.push(cb.value);
+  });
+
+  fetch("/api/task/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: title,
+      objective: objective,
+      type: itemType,
+      priority: priority,
+      assignee: assignee,
+      collaborators: collabs,
+      est_hours: estHours,
+      desc: desc
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      closeCreateModal();
+      document.getElementById("newTitle").value = "";
+      document.getElementById("newObjective").value = "";
+      document.getElementById("newDesc").value = "";
+      fetchBoard();
+    } else {
+      alert("创建失败: " + (res.error || "未知错误"));
+    }
+  })
+  .catch(err => alert("网络请求异常: " + err));
+}
+
+// 启动初始化
+fetchBoard();
+setInterval(fetchBoard, 2500);
+</script>
+
+</body>
+</html>

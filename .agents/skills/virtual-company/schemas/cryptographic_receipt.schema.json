@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AegisFlowCryptographicReceipt",
+  "description": "AegisFlow 确定性门禁密码学收据标准 JSON 结构",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "task_id",
+    "gate",
+    "passed",
+    "timestamp",
+    "sha256_checksum"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "description": "收据唯一编号，格式如 REC-TSK-1001-GATE_1_CONTRACT-PASS"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "关联的工单编号"
+    },
+    "gate": {
+      "type": "string",
+      "enum": [
+        "gate_1_contract",
+        "gate_2_review",
+        "gate_3_security",
+        "gate_4_testing",
+        "gate_5_doc_sync",
+        "gate_6_human_accept"
+      ],
+      "description": "通过的确定性门禁标识"
+    },
+    "passed": {
+      "type": "boolean",
+      "description": "门禁裁定结论 (true: 放行, false: 阻断)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "收据签发时的 ISO 8601 时间戳"
+    },
+    "sha256_checksum": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "基于受审目标快照计算的 64 位 SHA-256 密码学摘要指纹"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "包含测试耗时、用例覆盖率、Git commit sha 等扩展详情"
+    }
+  }
+}

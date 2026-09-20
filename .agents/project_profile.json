@@ -1,0 +1,14 @@
+{
+  "project_name": "多Agent开发工具",
+  "detected_languages": [
+    "Python"
+  ],
+  "primary_language": "Python",
+  "frameworks": [],
+  "default_test_command": "python -m unittest discover tests",
+  "default_lint_command": "python tools/vc_cli.py lint --target src",
+  "default_build_command": "",
+  "has_src_dir": true,
+  "has_tests_dir": true,
+  "has_docs_dir": true
+}
