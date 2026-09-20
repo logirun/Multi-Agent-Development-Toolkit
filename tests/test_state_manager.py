@@ -163,6 +163,23 @@ class TestStateManager(unittest.TestCase):
                 note="Agent attempting self-acceptance"
             )
 
+    def test_developer_strictly_forbidden_from_completed(self):
+        """
+        测试开发者权限硬限制：开发人员严禁直接将任务推进至 COMPLETED，必须经由质检角色完成。
+        """
+        self.manager.create_task(task_id="TSK-3003", title="Dev Permission Test")
+        self.manager.start_task("TSK-3003", role="developer")
+        # 开发者尝试直接标记 COMPLETED 必须抛出 PermissionError
+        with self.assertRaises(PermissionError) as ctx:
+            self.manager.advance_stage(
+                task_id="TSK-3003",
+                target_stage="COMPLETED",
+                role="developer",
+                note="Dev trying to finish task directly"
+            )
+        self.assertIn("权限拦截", str(ctx.exception))
+
+
     def test_rejections_and_veto_tagging(self):
         """
         测试专业打回原号继承：生成 TSK-xxxx#<TYPE>-<N> 格式并记录回退。

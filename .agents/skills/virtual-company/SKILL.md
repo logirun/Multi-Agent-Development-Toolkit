@@ -193,3 +193,25 @@ AegisFlow 彻底打破“挂名式”角色设定，将 11 大标准角色全面
 | **cto** | 首席技术仲裁官 ⚖️ | 三振出局硬熔断介入仲裁、时空快照时光倒流与架构冲突裁决 | `BLOCKED` 状态唤醒 | 熔断仲裁决策书、时光倒流指令 |
 | **human_operator** | 人类管理员 👑 | 物理真实控制台终审（Gate 6）、业务目标最终验收、不可逆封板归档 | `ACCEPTED` (终态) | 人类物理签字收据、项目封板档案 |
 
+### 7.1 角色生命周期流转硬权限矩阵 (Role State Transition Authority)
+
+微内核在操作系统与代码级对 11 大角色施加**物理硬限制，严禁越权**：
+1. **核心研发 (Developer 💻)**：
+   - **允许权限**：领单开工（`-> IN_PROGRESS`）、提交代码审查（`IN_PROGRESS -> CODE_REVIEW`）。
+   - **绝对红线**：**严禁直接将工单推进为 `COMPLETED`！严禁跳过审查直接进测试！严禁修改 `tests/`！** 违者状态机抛出 `PermissionError` 强制阻断。
+2. **代码审查员 (Code Reviewer 🔍)**：
+   - **流转权限**：`CODE_REVIEW -> SECURITY_AUDIT` 或行使 `#QR` 驳回至 `IN_PROGRESS`。
+   - **强制交付物**：必须在 `docs/reviews/` 真实输出 `REV-<TaskID>.md` 审查意见书，否则禁止放行。
+3. **独立安全审计员 (Security Engineer 🛡️)**：
+   - **流转权限**：`SECURITY_AUDIT -> TESTING` 或行使 `#SR` 驳回至 `IN_PROGRESS`。
+   - **强制交付物**：必须在 `docs/security/` 真实输出 `SEC-<TaskID>.md` 安全报告，否则禁止放行。
+4. **质量验证测试员 (QA Engineer 🧪)**：
+   - **流转权限**：`TESTING -> DOC_SYNC` 或行使 `#FR` 驳回至 `IN_PROGRESS`。
+   - **强制交付物**：必须在 `docs/qa/` 真实输出 `QA-<TaskID>.md` 质检单测报告，且执行子进程返回码必须为 0。
+5. **活文档与发布主管 (Doc & Release Engineer 📚🚀)**：
+   - **流转权限**：`DOC_SYNC -> COMPLETED`。
+   - **放行条件**：Gate 1 至 Gate 5 密码学收据全部齐备且已核验，方可将工单呈报进入 `COMPLETED` 待终审。
+6. **人类管理员 (Human Operator 👑)**：
+   - **终审主权**：`COMPLETED -> ACCEPTED`，拥有系统最高物理签字权。
+
+

@@ -69,6 +69,57 @@ ROLE_PROFILES: Dict[str, Dict[str, str]] = {
     "human_operator": {"title": "人类管理员", "icon": "👑", "scope": "项目最终业务验收与不可逆归档"}
 }
 
+# 角色与阶段流转严格权限矩阵 (Strict Role-Stage Transition Permissions)
+# 核心铁律：开发者只能领单或提审，绝对禁止直接标记完成；每一步必须由对应质检角色审核放行
+STAGE_PERMISSIONS: Dict[str, Dict[str, Any]] = {
+    "SPECIFICATION": {
+        "allowed_roles": ["pm", "architect"],
+        "from_stages": ["BACKLOG"],
+        "err_msg": "权限拦截：只有团队负责人 (pm) 或系统架构师可推进至 SPECIFICATION (需求规格制定阶段)。"
+    },
+    "CONTRACT_FROZEN": {
+        "allowed_roles": ["architect", "pm"],
+        "from_stages": ["SPECIFICATION", "BACKLOG"],
+        "err_msg": "权限拦截：只有系统架构师 (architect) 可锁定架构契约 (CONTRACT_FROZEN)。"
+    },
+    "IN_PROGRESS": {
+        "allowed_roles": ["developer", "pm", "cto", "architect"],
+        "from_stages": ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN", "CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC", "BLOCKED"],
+        "err_msg": "权限拦截：只有研发工程师 (developer) 或 CTO/PM 可启动研发编码 (IN_PROGRESS)。"
+    },
+    "CODE_REVIEW": {
+        "allowed_roles": ["developer", "code_reviewer", "pm"],
+        "from_stages": ["IN_PROGRESS"],
+        "err_msg": "权限拦截：只有研发工程师 (developer) 在完成编码后可提交代码评审 (CODE_REVIEW)。"
+    },
+    "SECURITY_AUDIT": {
+        "allowed_roles": ["code_reviewer", "security_engineer", "pm"],
+        "from_stages": ["CODE_REVIEW", "IN_PROGRESS"],
+        "err_msg": "权限拦截：只有代码审查员 (code_reviewer) 评审合格后可移交安全审计 (SECURITY_AUDIT)。开发者无权跳过代码审查！"
+    },
+    "TESTING": {
+        "allowed_roles": ["security_engineer", "qa_engineer", "pm"],
+        "from_stages": ["SECURITY_AUDIT", "CODE_REVIEW", "IN_PROGRESS"],
+        "err_msg": "权限拦截：只有独立安全审计员 (security_engineer) 审计合格后可移交自动化测试 (TESTING)。严禁未安全审计直接进入测试！"
+    },
+    "DOC_SYNC": {
+        "allowed_roles": ["qa_engineer", "doc_engineer", "pm"],
+        "from_stages": ["TESTING", "IN_PROGRESS"],
+        "err_msg": "权限拦截：只有质量测试员 (qa_engineer) 验证自动化测试100%全通后可移交活文档同步 (DOC_SYNC)。"
+    },
+    "COMPLETED": {
+        "allowed_roles": ["doc_engineer", "release_engineer", "qa_engineer", "pm"],
+        "from_stages": ["DOC_SYNC", "TESTING", "SECURITY_AUDIT", "CODE_REVIEW", "IN_PROGRESS"],
+        "err_msg": "权限拦截：研发人员 (developer) 绝对禁止直接将工单标记为完成 (COMPLETED)！必须由测试/活文档/发布主管在完成全部质检闭环后方可完成！"
+    },
+    "ACCEPTED": {
+        "allowed_roles": ["human_operator"],
+        "from_stages": ["COMPLETED"],
+        "err_msg": "权限拦截：ACCEPTED 为人类管理员物理专属终态，智能体严禁自我验收！"
+    }
+}
+
+
 
 class StateManager:
     """
@@ -105,6 +156,33 @@ class StateManager:
                         t["result"] = "全生命周期质量门禁已全部闭环，已由人类管理员终审核准归档。" if t.get("stage") == "ACCEPTED" else ""
                     if "collaborators" not in t:
                         t["collaborators"] = []
+
+                    # 确保需求背景与验收准则 (AC) 绝不为空
+                    desc_val = t.get("desc") or t.get("description") or ""
+                    if not desc_val.strip():
+                        specs_dir = self.root_dir / "docs" / "specs"
+                        found_spec = None
+                        if specs_dir.exists():
+                            for sf in specs_dir.glob(f"*{task_id}*.md"):
+                                try:
+                                    found_spec = sf.read_text(encoding="utf-8")
+                                    break
+                                except Exception:
+                                    pass
+                        if found_spec:
+                            desc_val = found_spec.strip()
+                        else:
+                            obj_txt = t.get("objective", t.get("title", ""))
+                            desc_val = (
+                                f"【业务需求背景与目标】:\n{obj_txt}\n\n"
+                                f"【验收准则 (AC)】:\n"
+                                f"1. 核心功能特性与架构白名单契约严格对齐；\n"
+                                f"2. 具备独立自动化测试用例且回归 100% PASS；\n"
+                                f"3. SAST 静态安全扫描与 AST 语法快筛 0 违规；\n"
+                                f"4. 活文档与代码架构地图保持同步更新。"
+                            )
+                    t["desc"] = t["description"] = desc_val
+
                     if "role_contributions" not in t or not t["role_contributions"]:
                         contributions = []
                         for h in t.get("history", []):
@@ -250,6 +328,17 @@ class StateManager:
             )
 
         obj = objective.strip() if objective else title
+        desc_val = desc.strip() if desc else ""
+        if not desc_val or len(desc_val) < 5:
+            desc_val = (
+                f"【业务需求背景与目标】:\n{obj}\n\n"
+                f"【验收准则 (AC)】:\n"
+                f"1. 核心功能特性与架构白名单契约严格对齐，禁止越权改动；\n"
+                f"2. 具备独立自动化测试用例且回归全绿 (100% PASS)；\n"
+                f"3. SAST 静态安全扫描与 AST 语法快筛 0 违规；\n"
+                f"4. 活文档与代码架构地图保持同步更新。"
+            )
+
         collabs = list(collaborators) if collaborators else []
         prof = ROLE_PROFILES.get(assignee, {"title": assignee, "icon": "📋", "scope": "需求定义"})
         now_str = datetime.now().isoformat()
@@ -283,7 +372,8 @@ class StateManager:
             "title": title,
             "objective": obj,
             "result": result,
-            "description": desc,
+            "description": desc_val,
+            "desc": desc_val,
             "tier": tier,
             "type": item_type,
             "priority": priority,
@@ -428,6 +518,50 @@ class StateManager:
             task["completed_at"] = datetime.now().isoformat()
 
         old_stage = task["stage"]
+
+        # 1. 物理级角色权限与阶段跃迁硬校验
+        perm = STAGE_PERMISSIONS.get(target_stage)
+        if perm:
+            if old_stage not in perm["from_stages"]:
+                raise ValueError(
+                    f"Invalid Stage Transition: Cannot advance task '{task_id}' from '{old_stage}' to '{target_stage}'. "
+                    f"Allowed from stages: {perm['from_stages']}"
+                )
+            if role not in perm["allowed_roles"]:
+                raise PermissionError(
+                    f"Role Permission Denied: Role '{role}' cannot advance task to '{target_stage}'. "
+                    f"{perm['err_msg']} (Allowed roles: {perm['allowed_roles']})"
+                )
+
+        # 2. 物理交付物文档硬校验 (当工程存在对应 docs 目录时，强制要求对应质检角色产出报告)
+        if target_stage == "SECURITY_AUDIT":
+            rev_dir = self.root_dir / "docs" / "reviews"
+            if rev_dir.exists():
+                found_rev = list(rev_dir.glob(f"*{task_id}*.md"))
+                if not found_rev:
+                    raise FileNotFoundError(
+                        f"Missing Mandatory Deliverable: Review report 'docs/reviews/REV-{task_id}.md' does not exist! "
+                        "Code reviewer MUST write review findings before advancing to SECURITY_AUDIT."
+                    )
+        elif target_stage == "TESTING":
+            sec_dir = self.root_dir / "docs" / "security"
+            if sec_dir.exists():
+                found_sec = list(sec_dir.glob(f"*{task_id}*.md"))
+                if not found_sec:
+                    raise FileNotFoundError(
+                        f"Missing Mandatory Deliverable: Security report 'docs/security/SEC-{task_id}.md' does not exist! "
+                        "Security engineer MUST write security report before advancing to TESTING."
+                    )
+        elif target_stage == "DOC_SYNC":
+            qa_dir = self.root_dir / "docs" / "qa"
+            if qa_dir.exists():
+                found_qa = list(qa_dir.glob(f"*{task_id}*.md"))
+                if not found_qa:
+                    raise FileNotFoundError(
+                        f"Missing Mandatory Deliverable: QA test report 'docs/qa/QA-{task_id}.md' does not exist! "
+                        "QA engineer MUST write QA test report before advancing to DOC_SYNC."
+                    )
+
         task["stage"] = target_stage
         task["assignee"] = role
         if receipt_path and receipt_path not in task["deliverables"]["receipts"]:

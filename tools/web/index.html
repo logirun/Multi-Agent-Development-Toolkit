@@ -373,7 +373,9 @@
     border-radius: 12px;
     display: flex;
     flex-direction: column;
-    min-height: 500px;
+    height: calc(100vh - 200px);
+    max-height: calc(100vh - 200px);
+    min-height: 480px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   }
   .lane-header {
@@ -383,6 +385,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
   }
   .lane-title {
     font-size: 12.5px;
@@ -406,6 +409,19 @@
     flex-direction: column;
     gap: 10px;
     flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+  }
+  .cards-list::-webkit-scrollbar {
+    width: 5px;
+  }
+  .cards-list::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.25);
+    border-radius: 4px;
+  }
+  .cards-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
   }
 
   /* 任务卡片设计 */
@@ -1500,19 +1516,20 @@ function renderStageKanban(container, tasks) {
   `;
 }
 
-// 5.2 维度 2: 状态看板
+// 5.2 维度 2: 状态看板 (全面覆盖7大标准生命周期，杜绝卡片漏显)
 function renderStatusKanban(container, tasks) {
   const lanes = [
-    { id: "st-pending", title: "待规划 PENDING", filter: t => ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN"].includes(t.stage) },
-    { id: "st-prog", title: "进行中 IN PROGRESS", filter: t => t.stage === "IN_PROGRESS" },
-    { id: "st-review", title: "门禁评审 REVIEWING", filter: t => ["CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC"].includes(t.stage) },
-    { id: "st-rej", title: "质检整改 REVISE", filter: t => (t.rejections || []).length > 0 && t.stage !== "BLOCKED" && t.stage !== "ACCEPTED" },
-    { id: "st-blocked", title: "🚨 熔断挂起 BLOCKED", filter: t => t.stage === "BLOCKED" },
-    { id: "st-accept", title: "✅ 已验收 ACCEPTED", filter: t => t.stage === "ACCEPTED" }
+    { id: "st-pending", title: "1. 待规划 PENDING", filter: t => ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN"].includes(t.stage) },
+    { id: "st-prog", title: "2. 进行中 IN PROGRESS", filter: t => t.stage === "IN_PROGRESS" && (!t.rejections || t.rejections.length === 0) },
+    { id: "st-review", title: "3. 门禁评审 REVIEWING", filter: t => ["CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC"].includes(t.stage) },
+    { id: "st-rej", title: "4. 质检整改 REVISE", filter: t => t.stage === "IN_PROGRESS" && (t.rejections || []).length > 0 },
+    { id: "st-complete", title: "5. 待终审 COMPLETED", filter: t => t.stage === "COMPLETED" },
+    { id: "st-accept", title: "6. 已验收 ACCEPTED", filter: t => t.stage === "ACCEPTED" },
+    { id: "st-blocked", title: "7. 熔断挂起 BLOCKED", filter: t => t.stage === "BLOCKED" }
   ];
 
   container.innerHTML = `
-    <div class="lanes-container lanes-6">
+    <div class="lanes-container lanes-7">
       ${lanes.map(l => {
         const laneTasks = tasks.filter(l.filter);
         return `
