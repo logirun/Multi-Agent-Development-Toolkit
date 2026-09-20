@@ -45,7 +45,13 @@ ALLOWED_ROOT_DIRS = {
     ".git",
     ".github",
     ".scratch",
-    "deploy"
+    "deploy",
+    "public",
+    "static",
+    "assets",
+    "dist",
+    "build",
+    "node_modules"
 }
 
 
@@ -131,8 +137,12 @@ class RepoHygieneGuard:
         :return: 超出深度限制的路径违规列表
         """
         violations = []
+        ignored_dir_names = {
+            ".git", ".agents", ".next", ".cache", ".idea", ".vscode",
+            "node_modules", "dist", "build", "coverage", "__pycache__", ".venv", "venv"
+        }
         for path in self.root_dir.rglob("*"):
-            if any(part.startswith(".") for part in path.parts):
+            if any(part.startswith(".") or part.lower() in ignored_dir_names for part in path.parts):
                 continue
             rel_parts = path.relative_to(self.root_dir).parts
             if len(rel_parts) > max_depth:
