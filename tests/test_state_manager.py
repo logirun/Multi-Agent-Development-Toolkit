@@ -311,15 +311,25 @@ class TestStateManager(unittest.TestCase):
             self.manager.claim_task("TSK-9003", role="developer")
         self.assertIn("前置依赖拦截", str(cm.exception))
 
-        # WIP 限制测试
+        # WIP 限制测试 (并发上限 3 个)
         self.manager.advance_stage("TSK-9002", "READY_TO_CLAIM", role="architect")
-        self.manager.claim_task("TSK-9002", role="developer") # developer 正在进行 TSK-9002
+        self.manager.claim_task("TSK-9002", role="developer")  # developer 正在进行工单 1
 
-        task3 = self.manager.create_task(task_id="TSK-9004", title="Another Task")
+        task3 = self.manager.create_task(task_id="TSK-9004", title="Task 2")
         self.manager.advance_stage("TSK-9004", "READY_TO_CLAIM", role="architect")
+        self.manager.claim_task("TSK-9004", role="developer")  # developer 正在进行工单 2
+
+        task4 = self.manager.create_task(task_id="TSK-9007", title="Task 3")
+        self.manager.advance_stage("TSK-9007", "READY_TO_CLAIM", role="architect")
+        self.manager.claim_task("TSK-9007", role="developer")  # developer 正在进行工单 3 (已达上限 3)
+
+        # 尝试认领第 4 个工单时被物理拦截
+        task5 = self.manager.create_task(task_id="TSK-9008", title="Task 4")
+        self.manager.advance_stage("TSK-9008", "READY_TO_CLAIM", role="architect")
         with self.assertRaises(PermissionError) as cm2:
-            self.manager.claim_task("TSK-9004", role="developer")
+            self.manager.claim_task("TSK-9008", role="developer")
         self.assertIn("WIP 在制品限制拦截", str(cm2.exception))
+        self.assertIn("WIP Limit = 3", str(cm2.exception))
 
     def test_permission_matrix_developer_cannot_complete(self):
         """

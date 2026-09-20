@@ -157,19 +157,25 @@ STAGE_PERMISSIONS: Dict[str, Dict[str, Any]] = {
 
 
 
+# 默认在制品 (WIP) 并发限制：每个开发者最多同时持有 3 个进行中工单
+DEFAULT_WIP_LIMIT = 3
+
+
 class StateManager:
     """
     任务状态管理器与生命周期控制核心引擎。
     管理任务状态迁移、多维打回、熔断保护以及时空回溯快照。
     """
 
-    def __init__(self, root_dir: str = "."):
+    def __init__(self, root_dir: str = ".", wip_limit: int = DEFAULT_WIP_LIMIT):
         """
         初始化状态管理器。
 
         :param root_dir: 项目根目录绝对或相对路径，默认为当前工作目录。
+        :param wip_limit: 开发者同时持有的最大进行中工单数 (默认 3 个)。
         """
         self.root_dir = Path(root_dir).resolve()
+        self.wip_limit = wip_limit
         self.storage_path = self.root_dir / DEFAULT_STORAGE_FILE
         self.event_stream_path = self.root_dir / EVENT_STREAM_FILE
         self.data: Dict[str, Any] = self._load()
@@ -484,7 +490,7 @@ class StateManager:
         1. 终态防篡改：已处于 ACCEPTED 或 CANCELLED 的工单严禁重新打开。
         2. 状态准入硬锁：工单必须处于可领取状态 (READY_TO_CLAIM, PENDING, CONTRACT_FROZEN, BACKLOG, REVISE)。
         3. 角色授权硬锁：只有 developer (或 pm/cto 特权) 可以认领。
-        4. WIP 在制品并发硬锁：单开发者同一时刻只能持有一张 IN_PROGRESS 活跃工单 (WIP Limit = 1)。
+        4. WIP 在制品并发硬锁：单开发者同一时刻最多持有 3 张 IN_PROGRESS 活跃工单 (WIP Limit = 3)。
         5. 前置依赖拓扑检查：若工单声明了 depends_on 前置依赖，依赖必须处于 ACCEPTED。
 
         :param task_id: 工单编号
@@ -508,17 +514,17 @@ class StateManager:
                 f"工单领单拦截: 角色 '{role}' 无权认领研发工单，必须由核心研发工程师 (developer) 认领！"
             )
 
-        # 3. WIP 在制品并发硬锁 (一人一单限制)
+        # 3. WIP 在制品并发硬锁 (支持并发限制，当前上限 3 个)
         if role == "developer":
             active_tasks = [
                 t for tid, t in self.data["tasks"].items()
                 if t.get("assignee") == role and t.get("stage") == "IN_PROGRESS" and tid != task_id
             ]
-            if active_tasks:
-                conflict_id = active_tasks[0]["id"]
+            if len(active_tasks) >= self.wip_limit:
+                conflict_ids = [t["id"] for t in active_tasks]
                 raise PermissionError(
-                    f"WIP 在制品限制拦截: 开发者 '{role}' 当前已持有进行中工单 [{conflict_id}]！"
-                    f"在单人单任务敏捷原则下，必须先交付或退单当前任务，方可认领新工单 (WIP Limit = 1)。"
+                    f"WIP 在制品限制拦截: 开发者 '{role}' 当前已持有 {len(active_tasks)} 项进行中工单 {conflict_ids}！"
+                    f"在敏捷协作原则下，单人并发工单上限为 {self.wip_limit} 个，必须先交付或退单已有任务，方可认领新工单 (WIP Limit = {self.wip_limit})。"
                 )
 
         # 4. 前置依赖拓扑检查

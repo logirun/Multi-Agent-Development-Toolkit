@@ -208,7 +208,7 @@ def main():
             task = sm.start_task(args.id, args.role)
             print(f"🚀 [领单开工成功] [CLAIM PASS] Work started on {task['id']} (已由 {args.role} 认领锁定)！")
             print(f"   开工时间: {task['started_at']}")
-            print(f"   当前阶段: [{task['stage']}] (WIP 并发限制已生效)")
+            print(f"   当前阶段: [{task['stage']}] (WIP 并发限制 [最多3个] 已生效)")
         except Exception as e:
             print(f"❌ 领单操作被物理门禁拦截: {e}", file=sys.stderr)
             sys.exit(1)

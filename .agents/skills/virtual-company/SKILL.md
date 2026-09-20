@@ -193,7 +193,7 @@ AegisFlow 将原本冗余的 11 角色重构收敛为**“5 大常驻骨干 + 2 
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **5 大常驻骨干** | **pm** | 团队负责人 / 产品主理人 📋 | 需求全面统筹、业务目标确立、拆解细化可测试验收准则 (AC) | `BACKLOG` ➔ `SPEC_REVIEW` | 需求卡片、明确业务目标、AC 契约清单 |
 | | **architect** | 系统架构师 🏛️ | 核心技术选型、设计 SPEC 与文件白名单、SHA256 契约签名锁定 (Gate 1)、按需决策是否调用 researcher 预研 | `SPEC_REVIEW` ➔ `READY_TO_CLAIM` | `docs/specs/SPEC-*.md`、范围白名单、G1 契约收据 |
-| | **developer** | 核心研发工程师 💻 | 认领工单 (Claim)、单人单任务并发上限 (WIP Limit = 1)、白名单内精准实现、单元测试自编写、主动退单 (Surrender) | `READY_TO_CLAIM` ➔ `IN_PROGRESS` ➔ `IN_AUDIT` | 业务源码、单测代码、Conventional Commits |
+| | **developer** | 核心研发工程师 💻 | 认领工单 (Claim)、开发者并发工单上限 (WIP Limit = 3)、白名单内精准实现、单元测试自编写、主动退单 (Surrender) | `READY_TO_CLAIM` ➔ `IN_PROGRESS` ➔ `IN_AUDIT` | 业务源码、单测代码、Conventional Commits |
 | | **qa_board** | 质检审查小组 🛡️ | 审查、安全、测试三合一闭环流水线（内部串行 AST 快筛 ➔ SAST 安全审计 ➔ 100% 动态回归），行使 `#QR/#SR/#FR` 一票否决 | `IN_AUDIT` ➔ `DOC_SYNC` (或驳回 `REVISE`) | 《综合质检审查报告》(VERIFY-*.md)、综合质检收据 |
 | | **doc_engineer** | 活文档工程师 📚 | Aider 风格 AST 代码架构地图与目录维护、接口与文档一致性核验 (Gate 5)、行使 `#DR` 一票否决 | `DOC_SYNC` ➔ `RELEASE_PREP` | `docs/PROJECT_STRUCTURE.md`、接口同步收据 |
 | **2 大阶段专家** | **researcher** | 技术预研专家 🔬 | **按需休眠/唤醒**：仅在初次立项、新技术路线或高风险架构抉择时由架构师调用，输出技术调研报告 | 按需在 `BACKLOG` / `SPEC_REVIEW` 唤醒 | `docs/research/RES-*.md` 技术预研评估报告 |
@@ -213,7 +213,7 @@ AegisFlow 将原本冗余的 11 角色重构收敛为**“5 大常驻骨干 + 2 
     │  (architect: 编写 SPEC-*.md，签发 G1 契约收据)
     ▼
  [READY_TO_CLAIM] (公海待领工单池)
-    │  (developer: 认领 claim_task，检查 WIP=1 & 前置 depends_on)
+    │  (developer: 认领 claim_task，检查 WIP<=3 & 前置 depends_on)
     ├───────────────────────────────────────────────────────┐
     ▼                                                       ▼
  [IN_PROGRESS] (编码实装) ──(主动退单 surrender)──► [READY_TO_CLAIM]
@@ -245,7 +245,7 @@ AegisFlow 将原本冗余的 11 角色重构收敛为**“5 大常驻骨干 + 2 
 | :--- | :--- | :--- |
 | **无工单私自编写代码** | Git `pre-commit` 物理拦截退出码 1，阻断提交 | 任意开发者 / Agent |
 | **工单未锁定 SPEC 抢先待领** | 状态机强校验：缺少 `docs/specs/SPEC-*.md` 抛出 `ValueError` | `architect` |
-| **一人持有多个进行中任务** | 状态机 `WIP Limit = 1` 物理锁定：已有进行中工单认领新单抛出 `PermissionError` | `developer` |
+| **开发持单超出并发上限 (3个)** | 状态机 `WIP Limit = 3` 物理锁定：已有 3 项进行中工单认领新单抛出 `PermissionError` | `developer` |
 | **前置依赖未验收提前开工** | 拓扑依赖强阻断：`depends_on` 未处于 `ACCEPTED` 状态时认领抛出 `ValueError` | `developer` |
 | **非持单人越权代为退单** | 权限强校验：非当前责任人执行退单抛出 `PermissionError` | 任意非法介入者 |
 | **研发工程师擅自宣布完成** | 状态机权限白名单：`developer` 推进至 `COMPLETED` 抛出 `PermissionError` | `developer` |
