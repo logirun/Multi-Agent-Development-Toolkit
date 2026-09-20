@@ -198,6 +198,60 @@ class TestGatekeeper(unittest.TestCase):
             self.assertEqual(data["outcome"], "PASS")
             self.assertIn("signature_sha256", data)
 
+    def test_run_unified_qa_audit_pipeline(self):
+        """
+        测试质检审查小组 (qa_board) 统一质检流水线：
+        规范 (AST+Commit) -> 安全 (SAST) -> 单测流水线递进校验。
+        """
+        src_dir = self.root / "src"
+        src_dir.mkdir(parents=True, exist_ok=True)
+        py_file = src_dir / "app.py"
+        py_file.write_text("def add(a, b):\n    return a + b\n", encoding="utf-8")
+
+        # 1. 提交信息不合规 -> 阻断于 Gate 2 (QR)
+        passed, msg, meta = self.gatekeeper.run_unified_qa_audit(
+            task_id="TSK-QA-1",
+            commit_msg="bad commit msg"
+        )
+        self.assertFalse(passed)
+        self.assertEqual(meta.get("veto_type"), "QR")
+        self.assertIn("Conventional Commits Violation", msg)
+
+        # 2. 引入安全隐患 -> 阻断于 Gate 3 (SR)
+        vuln_file = src_dir / "vuln.py"
+        vuln_file.write_text('API_KEY = "sk-abcdefghijklmnopqrstuvwxyz123456"\n', encoding="utf-8")
+        passed, msg, meta = self.gatekeeper.run_unified_qa_audit(
+            task_id="TSK-QA-2",
+            commit_msg="feat(core): add vuln script"
+        )
+        self.assertFalse(passed)
+        self.assertEqual(meta.get("veto_type"), "SR")
+        vuln_file.unlink()
+
+        # 3. 补齐独立单元测试用例，执行全流水线 -> 生成综合质检报告与防篡改收据
+        tests_dir = self.root / "tests"
+        tests_dir.mkdir(parents=True, exist_ok=True)
+        test_file = tests_dir / "test_app.py"
+        test_file.write_text(
+            "import unittest\n\n"
+            "class TestApp(unittest.TestCase):\n"
+            "    def test_ok(self):\n"
+            "        self.assertTrue(True)\n\n"
+            "if __name__ == '__main__':\n"
+            "    unittest.main()\n",
+            encoding="utf-8"
+        )
+
+        passed, msg, meta = self.gatekeeper.run_unified_qa_audit(
+            task_id="TSK-QA-3",
+            commit_msg="feat(core): add add function"
+        )
+        self.assertTrue(passed, f"Expected pass, got: {msg}")
+        self.assertTrue(meta["receipt_file"].endswith(".json"))
+        verify_doc = self.root / "docs" / "qa" / "VERIFY-TSK-QA-3.md"
+        self.assertTrue(verify_doc.exists())
+        self.assertIn("综合质检评估报告", verify_doc.read_text(encoding="utf-8"))
+
 
 if __name__ == "__main__":
     unittest.main()

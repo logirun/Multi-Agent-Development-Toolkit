@@ -30,7 +30,9 @@ def format_stage_badge(stage: str) -> str:
         return f"{GREEN}[{stage}]{RESET}"
     elif stage in ["IN_PROGRESS", "DEVELOPMENT"]:
         return f"{BLUE}[{stage}]{RESET}"
-    elif stage in ["CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC"]:
+    elif stage in ["READY_TO_CLAIM", "CONTRACT_FROZEN"]:
+        return f"{CYAN}[{stage}]{RESET}"
+    elif stage in ["IN_AUDIT", "REVISE", "CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC"]:
         return f"{YELLOW}[{stage}]{RESET}"
     elif stage == "BLOCKED":
         return f"{RED}{BOLD}[BLOCKED - CIRCUIT BREAKER]{RESET}"

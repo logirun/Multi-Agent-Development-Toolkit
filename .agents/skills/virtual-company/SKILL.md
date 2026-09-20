@@ -117,33 +117,42 @@ python tools/vc_cli.py heartbeat
 python tools/vc_cli.py board
 
 # 5. 创建任务卡片
-python tools/vc_cli.py create --id TSK-1001 --title "实现JWT鉴权" --tier 2 --hours 4.0 --assignee developer
+python tools/vc_cli.py create --id TSK-1001 --title "实现JWT鉴权" --tier 2 --hours 4.0 --assignee pm
 
-# 6. 领单开工
-python tools/vc_cli.py start --id TSK-1001 --role developer
+# 6. 领单开工 (Claim Work Order，自动执行 WIP 检查与依赖拓扑核验)
+python tools/vc_cli.py claim --id TSK-1001 --role developer
 
-# 7. 毫秒级 AST 语法快筛
+# 7. 主动退单 (Surrender Work Order，遇到不可抗力释放锁定回归待领池)
+python tools/vc_cli.py surrender --id TSK-1001 --role developer --reason "遇到上游接口阻塞"
+
+# 8. 毫秒级 AST 语法快筛
 python tools/vc_cli.py lint --target src
 
-# 8. 六重确定性质量门禁核验 (签发密码学收据 REC-*.json)
+# 9. 质检审查小组统一质检流水线 (AST/规范 -> SAST安全 -> 自动化单测，签发 VERIFY-*.md)
+python tools/vc_cli.py audit --id TSK-1001 --commit-msg "feat(auth): add jwt support"
+
+# 10. 六重确定性质量门禁细粒度核验 (签发密码学收据 REC-*.json)
 python tools/vc_cli.py gate-check --id TSK-1001 --gate gate_2_review --commit-msg "feat(用户鉴权): 实现基于 RSA-256 的 JWT 令牌"
 python tools/vc_cli.py gate-check --id TSK-1001 --gate gate_3_security
 python tools/vc_cli.py gate-check --id TSK-1001 --gate gate_4_testing
 python tools/vc_cli.py gate-check --id TSK-1001 --gate gate_5_doc_sync
 
-# 9. 行使一票否决打回 (QR/SR/FR/DR)
-python tools/vc_cli.py reject --id TSK-1001 --role reviewer --type QR --reason "圈复杂度超标且缺少边界用例"
+# 11. 行使一票否决打回 (QR/SR/FR/DR)
+python tools/vc_cli.py reject --id TSK-1001 --role qa_board --type QR --reason "圈复杂度超标且缺少边界用例"
 
-# 10. 时光倒流无损回滚 (恢复到历史干净检查点)
-python tools/vc_cli.py rollback --id TSK-1001 --stage IN_PROGRESS
+# 12. CTO 架构仲裁诊断 (硬熔断唤醒或人工诊断)
+python tools/vc_cli.py arbitrate --id TSK-1001
 
-# 11. 仓库整洁度与测试镜像体检
+# 13. 时光倒流无损回滚 (恢复到历史干净检查点)
+python tools/vc_cli.py rollback --id TSK-1001 --stage READY_TO_CLAIM
+
+# 14. 仓库整洁度与测试镜像体检
 python tools/vc_cli.py hygiene
 
-# 12. 人类专属物理终审验收 (Gate 6 - 真实 TTY 交互)
+# 15. 人类专属物理终审验收 (Gate 6 - 真实 TTY 交互)
 python tools/vc_cli.py accept --id TSK-1001 --by "系统架构负责人"
 
-# 13. 离线零依赖 Web 大盘启动 (本地 8848 端口)
+# 16. 离线零依赖 Web 敏捷大盘启动 (本地 8848 端口)
 python tools/vc_cli.py web
 ```
 
@@ -174,44 +183,75 @@ AegisFlow 建立了层次分明、高度内聚且 100% 原创的工程资产矩�
 
 ---
 
-## 7. 全角色协同履职矩阵 (Multi-Role Action Matrix)
+## 7. 精益角色生态与物理门禁矩阵 (Lean Role Ecosystem & Physical Gates)
 
-AegisFlow 彻底打破“挂名式”角色设定，将 11 大标准角色全面盘活并深度编织进研发治理生命周期：
+AegisFlow 将原本冗余的 11 角色重构收敛为**“5 大常驻骨干 + 2 大阶段专家 + 1 位休眠仲裁官 + 1 位最高主权管理员” (5+2+1+1 体系)**，并实行绝对的**以工单为中心 (Work-Order-Centric)** 与 **物理硬门禁 (Physical Hard Enforcements)**：
 
-| 角色标识 | 角色全称 | 核心定位与职责边界 | 生命周期触达阶段 | 核心交付产物与防线 |
-| :--- | :--- | :--- | :--- | :--- |
-| **pm** | 团队负责人 / 产品主理人 📋 | 团队全面统筹、业务立项目标拟定、全生命周期管控与验收指标（AC）细化 | `BACKLOG` ➔ `SPECIFICATION` | 业务需求清单、验收准则边界 |
-| **architect** | 系统架构师 🏛️ | 语义边界白名单圈定、SHA256 契约签名计算与 G1 门禁锁定 | `SPECIFICATION` ➔ `CONTRACT_FROZEN` | G1 架构契约收据、文件白名单 |
-| **uiux_designer** | UI/UX体验设计师 🎨 | 界面视觉走查、深色磨砂材质对齐、去原生控件、防溢出审查 | `CONTRACT_FROZEN` ➔ `IN_PROGRESS` | 前端组件规范、设计走查报告 |
-| **dba** | 数据库管理员 🗄️ | 数据模式演进审查、迁移脚本合规性评估、可逆 DDL 验证 | `IN_PROGRESS` (涉及数据库时) | DDL 脚本审计意见、回滚方案 |
-| **developer** | 核心研发工程师 💻 | 范围白名单内精准实现、单元测试自编写、中文提交规范 | `IN_PROGRESS` ➔ `CODE_REVIEW` | 业务源码、单测代码、Git Commit |
-| **code_reviewer** | 代码审查员 🔍 | AST 抽象语法树遍历快筛、Conventional Commits 校验（拥有 `#QR` 否决权） | `CODE_REVIEW` ➔ `SECURITY_AUDIT` | G2 语法评审收据、`#QR` 审查意见 |
-| **security_engineer** | 独立安全审计员 🛡️ | SAST 静态机密扫描、SQL 拼接与 OWASP 漏洞排查（拥有 `#SR` 否决权） | `SECURITY_AUDIT` ➔ `TESTING` | G3 安全审计收据、`#SR` 漏洞拦截单 |
-| **qa_engineer** | 质量验证测试员 🧪 | 1:1 镜像测试环境自适应执行、全量断言通过率核验（拥有 `#FR` 否决权） | `TESTING` ➔ `DOC_SYNC` | G4 动态测试收据、`#FR` 缺陷打回单 |
-| **doc_engineer** | 活文档工程师 📚 | Aider 风格 AST 代码架构地图维护、API 与实现同步审查（拥有 `#DR` 否决权） | `DOC_SYNC` ➔ `COMPLETED` | G5 活文档同步收据、`#DR` 差异记录 |
-| **release_engineer** | 发布协调主管 🚀 | 全绿工单版本集成打包、跨角色交付物一致性核查与上线准备 | `COMPLETED` 封包 | 待发布版本包、全流程履职汇总单 |
-| **cto** | 首席技术仲裁官 ⚖️ | 三振出局硬熔断介入仲裁、时空快照时光倒流与架构冲突裁决 | `BLOCKED` 状态唤醒 | 熔断仲裁决策书、时光倒流指令 |
-| **human_operator** | 人类管理员 👑 | 物理真实控制台终审（Gate 6）、业务目标最终验收、不可逆封板归档 | `ACCEPTED` (终态) | 人类物理签字收据、项目封板档案 |
+### 7.1 角色全景编排 (5+2+1+1)
 
-### 7.1 角色生命周期流转硬权限矩阵 (Role State Transition Authority)
+| 角色类别 | 角色标识 | 角色全称 | 核心定位与职责边界 | 生命周期介入阶段 | 核心交付产物与防线 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **5 大常驻骨干** | **pm** | 团队负责人 / 产品主理人 📋 | 需求全面统筹、业务目标确立、拆解细化可测试验收准则 (AC) | `BACKLOG` ➔ `SPEC_REVIEW` | 需求卡片、明确业务目标、AC 契约清单 |
+| | **architect** | 系统架构师 🏛️ | 核心技术选型、设计 SPEC 与文件白名单、SHA256 契约签名锁定 (Gate 1)、按需决策是否调用 researcher 预研 | `SPEC_REVIEW` ➔ `READY_TO_CLAIM` | `docs/specs/SPEC-*.md`、范围白名单、G1 契约收据 |
+| | **developer** | 核心研发工程师 💻 | 认领工单 (Claim)、单人单任务并发上限 (WIP Limit = 1)、白名单内精准实现、单元测试自编写、主动退单 (Surrender) | `READY_TO_CLAIM` ➔ `IN_PROGRESS` ➔ `IN_AUDIT` | 业务源码、单测代码、Conventional Commits |
+| | **qa_board** | 质检审查小组 🛡️ | 审查、安全、测试三合一闭环流水线（内部串行 AST 快筛 ➔ SAST 安全审计 ➔ 100% 动态回归），行使 `#QR/#SR/#FR` 一票否决 | `IN_AUDIT` ➔ `DOC_SYNC` (或驳回 `REVISE`) | 《综合质检审查报告》(VERIFY-*.md)、综合质检收据 |
+| | **doc_engineer** | 活文档工程师 📚 | Aider 风格 AST 代码架构地图与目录维护、接口与文档一致性核验 (Gate 5)、行使 `#DR` 一票否决 | `DOC_SYNC` ➔ `RELEASE_PREP` | `docs/PROJECT_STRUCTURE.md`、接口同步收据 |
+| **2 大阶段专家** | **researcher** | 技术预研专家 🔬 | **按需休眠/唤醒**：仅在初次立项、新技术路线或高风险架构抉择时由架构师调用，输出技术调研报告 | 按需在 `BACKLOG` / `SPEC_REVIEW` 唤醒 | `docs/research/RES-*.md` 技术预研评估报告 |
+| | **devops** | 运维部署与发布专家 🚀 | **阶段参与**：架构设计期提供部署与运行时建议；发版阶段把关版本发布、交付物封装与终审移交 | 架构期参谋 ➔ 终局 `RELEASE_PREP` ➔ `COMPLETED` | 部署清单、发布校验报告、发版封包 |
+| **1 位休眠仲裁官**| **cto** | 首席技术仲裁官 ⚖️ | **平时常态休眠**：当工单遭遇连续 3 次打回触发硬熔断时自动被系统唤醒，深度复盘死锁根因，输出技术仲裁诊断呈报人类 | `BLOCKED` 硬熔断唤醒 | 《CTO 技术仲裁诊断报告书》(ARB-*.md) |
+| **1 位最高主权** | **human_admin** | 人类最高管理员 👑 | 系统最高主权所有者，物理真实终端交互终审 (Gate 6)，不可逆封板归档 | `COMPLETED` ➔ `ACCEPTED` (终态) | 人类操作员物理终审收据、归档档案 |
 
-微内核在操作系统与代码级对 11 大角色施加**物理硬限制，严禁越权**：
-1. **核心研发 (Developer 💻)**：
-   - **允许权限**：领单开工（`-> IN_PROGRESS`）、提交代码审查（`IN_PROGRESS -> CODE_REVIEW`）。
-   - **绝对红线**：**严禁直接将工单推进为 `COMPLETED`！严禁跳过审查直接进测试！严禁修改 `tests/`！** 违者状态机抛出 `PermissionError` 强制阻断。
-2. **代码审查员 (Code Reviewer 🔍)**：
-   - **流转权限**：`CODE_REVIEW -> SECURITY_AUDIT` 或行使 `#QR` 驳回至 `IN_PROGRESS`。
-   - **强制交付物**：必须在 `docs/reviews/` 真实输出 `REV-<TaskID>.md` 审查意见书，否则禁止放行。
-3. **独立安全审计员 (Security Engineer 🛡️)**：
-   - **流转权限**：`SECURITY_AUDIT -> TESTING` 或行使 `#SR` 驳回至 `IN_PROGRESS`。
-   - **强制交付物**：必须在 `docs/security/` 真实输出 `SEC-<TaskID>.md` 安全报告，否则禁止放行。
-4. **质量验证测试员 (QA Engineer 🧪)**：
-   - **流转权限**：`TESTING -> DOC_SYNC` 或行使 `#FR` 驳回至 `IN_PROGRESS`。
-   - **强制交付物**：必须在 `docs/qa/` 真实输出 `QA-<TaskID>.md` 质检单测报告，且执行子进程返回码必须为 0。
-5. **活文档与发布主管 (Doc & Release Engineer 📚🚀)**：
-   - **流转权限**：`DOC_SYNC -> COMPLETED`。
-   - **放行条件**：Gate 1 至 Gate 5 密码学收据全部齐备且已核验，方可将工单呈报进入 `COMPLETED` 待终审。
-6. **人类管理员 (Human Operator 👑)**：
-   - **终审主权**：`COMPLETED -> ACCEPTED`，拥有系统最高物理签字权。
+---
+
+### 7.2 任务与工单全生命周期 9 大标准状态
+
+```
+ [BACKLOG] (立项需求池)
+    │  (pm: 细化 AC 准则)
+    ▼
+ [SPEC_REVIEW] (架构白名单锁定)
+    │  (architect: 编写 SPEC-*.md，签发 G1 契约收据)
+    ▼
+ [READY_TO_CLAIM] (公海待领工单池)
+    │  (developer: 认领 claim_task，检查 WIP=1 & 前置 depends_on)
+    ├───────────────────────────────────────────────────────┐
+    ▼                                                       ▼
+ [IN_PROGRESS] (编码实装) ──(主动退单 surrender)──► [READY_TO_CLAIM]
+    │  (developer: 提测进审查，严禁直标完成)
+    ▼
+ [IN_AUDIT] (质检审查小组审核)
+    ├─► [REVISE] (质检打回，原单追加 #QR/#SR/#FR 轨迹) ──► (打回累计3次: 唤醒 CTO 熔断锁死为 [BLOCKED])
+    │  (qa_board: 规范 -> 安全 -> 单测全绿，签发 VERIFY-*.md)
+    ▼
+ [DOC_SYNC] (活文档与架构地图同步)
+    │  (doc_engineer: 更新 PROJECT_STRUCTURE.md & 接口文档)
+    ▼
+ [RELEASE_PREP] (发版与交付打包)
+    │  (devops: 部署校验与发布准备完毕)
+    ▼
+ [COMPLETED] (待终审验收)
+    │  (human_admin: 人类物理终审 Gate 6，输入 y 确认)
+    ▼
+ [ACCEPTED] (终态封板，密码学收据全链固化)
+```
+
+---
+
+### 7.3 全量“禁止可能”物理硬门禁矩阵 (Physical Hard Prohibitions)
+
+系统绝不依赖 Prompt 口头承诺，所有禁止规则均在 Python 状态机、磁盘文件与 Git 钩子中强制写死：
+
+| 违规动作 / 越权企图 | 拦截机制与物理表现 | 责任角色 / 触发源 |
+| :--- | :--- | :--- |
+| **无工单私自编写代码** | Git `pre-commit` 物理拦截退出码 1，阻断提交 | 任意开发者 / Agent |
+| **工单未锁定 SPEC 抢先待领** | 状态机强校验：缺少 `docs/specs/SPEC-*.md` 抛出 `ValueError` | `architect` |
+| **一人持有多个进行中任务** | 状态机 `WIP Limit = 1` 物理锁定：已有进行中工单认领新单抛出 `PermissionError` | `developer` |
+| **前置依赖未验收提前开工** | 拓扑依赖强阻断：`depends_on` 未处于 `ACCEPTED` 状态时认领抛出 `ValueError` | `developer` |
+| **非持单人越权代为退单** | 权限强校验：非当前责任人执行退单抛出 `PermissionError` | 任意非法介入者 |
+| **研发工程师擅自宣布完成** | 状态机权限白名单：`developer` 推进至 `COMPLETED` 抛出 `PermissionError` | `developer` |
+| **跳过质检直接同步文档** | 前置文件与收据强校验：缺少 `VERIFY-*.md` 且非 PASS 抛出 `ValueError` | 企图跳步者 |
+| **代码变动但未更新活文档** | Gate 5 活文档同步校验器一票否决 (`#DR`) | `doc_engineer` |
+| **智能体自我终审验收工单** | 状态机物理检测：`ACCEPTED` 仅限 `human_admin` 且校验 TTY 终端 | 任何 AI 智能体 |
+| **连续打回企图新建工单洗牌** | 状态机反洗牌铁律：禁止创建已存在 ID；打回达到 3 次强制熔断锁为 `BLOCKED` 并唤醒 CTO | 违规避责行为 |
 
 

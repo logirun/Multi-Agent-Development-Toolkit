@@ -245,10 +245,31 @@ class KanbanHandler(BaseHTTPRequestHandler):
         elif path == "/api/task/accept":
             try:
                 task_id = body.get("id")
-                role = body.get("role", "human_operator")
+                role = body.get("role", "human_admin")
                 note = body.get("note", "人类管理员终审验收通过并归档")
                 result = body.get("result", "全生命周期质量门禁全绿通过，人类管理员终审核准放行并归档。")
                 task = sm.accept_task(task_id, accepted_by=role, note=note, result=result)
+                self._send_json(200, {"success": True, "task": task})
+            except Exception as e:
+                self._send_json(400, {"success": False, "error": str(e)})
+            return
+
+        elif path == "/api/task/claim":
+            try:
+                task_id = body.get("id")
+                role = body.get("role", "developer")
+                task = sm.start_task(task_id, role=role)
+                self._send_json(200, {"success": True, "task": task})
+            except Exception as e:
+                self._send_json(400, {"success": False, "error": str(e)})
+            return
+
+        elif path == "/api/task/surrender":
+            try:
+                task_id = body.get("id")
+                role = body.get("role", "developer")
+                reason = body.get("reason", "通过 Web 界面主动退还工单")
+                task = sm.surrender_task(task_id, role=role, reason=reason)
                 self._send_json(200, {"success": True, "task": task})
             except Exception as e:
                 self._send_json(400, {"success": False, "error": str(e)})

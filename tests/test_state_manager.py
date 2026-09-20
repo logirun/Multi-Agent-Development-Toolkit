@@ -277,6 +277,87 @@ class TestStateManager(unittest.TestCase):
         top5 = self.manager.get_top5_active()
         self.assertEqual(len(top5), 5)
 
+    def test_claim_and_surrender_task(self):
+        """
+        测试工单领单锁定与主动退单机制：
+        READY_TO_CLAIM -> claim_task -> IN_PROGRESS -> surrender_task -> READY_TO_CLAIM
+        """
+        task = self.manager.create_task(task_id="TSK-9001", title="Task For Claim")
+        self.manager.advance_stage("TSK-9001", "READY_TO_CLAIM", role="architect")
+        
+        # 1. 领单开工
+        claimed = self.manager.claim_task("TSK-9001", role="developer")
+        self.assertEqual(claimed["stage"], "IN_PROGRESS")
+        self.assertEqual(claimed["assignee"], "developer")
+        self.assertIsNotNone(claimed["started_at"])
+
+        # 2. 主动退单
+        surrendered = self.manager.surrender_task("TSK-9001", role="developer", reason="Need clearer API schema")
+        self.assertEqual(surrendered["stage"], "READY_TO_CLAIM")
+        self.assertIsNone(surrendered["assignee"])
+        self.assertIsNone(surrendered["started_at"])
+        self.assertTrue(any("Work order surrendered" in str(h) for h in surrendered["history"]))
+
+    def test_wip_limit_and_depends_on_enforcement(self):
+        """
+        测试物理硬门禁：WIP 并发上限 (一人一单) 与 前置工单依赖阻断。
+        """
+        # 前置依赖未完成阻断测试
+        parent = self.manager.create_task(task_id="TSK-9002", title="Parent Task")
+        child = self.manager.create_task(task_id="TSK-9003", title="Child Task", depends_on=["TSK-9002"])
+        self.manager.advance_stage("TSK-9003", "READY_TO_CLAIM", role="architect")
+
+        with self.assertRaises(ValueError) as cm:
+            self.manager.claim_task("TSK-9003", role="developer")
+        self.assertIn("前置依赖拦截", str(cm.exception))
+
+        # WIP 限制测试
+        self.manager.advance_stage("TSK-9002", "READY_TO_CLAIM", role="architect")
+        self.manager.claim_task("TSK-9002", role="developer") # developer 正在进行 TSK-9002
+
+        task3 = self.manager.create_task(task_id="TSK-9004", title="Another Task")
+        self.manager.advance_stage("TSK-9004", "READY_TO_CLAIM", role="architect")
+        with self.assertRaises(PermissionError) as cm2:
+            self.manager.claim_task("TSK-9004", role="developer")
+        self.assertIn("WIP 在制品限制拦截", str(cm2.exception))
+
+    def test_permission_matrix_developer_cannot_complete(self):
+        """
+        测试角色权限矩阵：开发人员严禁自导自演推入 COMPLETED 或 ACCEPTED。
+        """
+        self.manager.create_task(task_id="TSK-9005", title="Permission Test Task")
+        self.manager.start_task("TSK-9005", role="developer")
+
+        with self.assertRaises(PermissionError):
+            self.manager.advance_stage("TSK-9005", "COMPLETED", role="developer")
+
+        with self.assertRaises(PermissionError):
+            self.manager.advance_stage("TSK-9005", "ACCEPTED", role="developer")
+
+    def test_cto_arbitration_report_generation(self):
+        """
+        测试连续 3 次打回触发硬熔断后，自动唤醒 CTO 并生成架构仲裁诊断报告。
+        """
+        self.manager.create_task(task_id="TSK-9006", title="Arbitration Task")
+        self.manager.start_task("TSK-9006", role="developer")
+        self.manager.reject_task("TSK-9006", "qa_board", "QR", "Bad code style 1")
+        self.manager.reject_task("TSK-9006", "qa_board", "SR", "SQL injection risk 2")
+        task = self.manager.reject_task("TSK-9006", "qa_board", "FR", "Functional failure 3")
+
+        self.assertEqual(task["stage"], "BLOCKED")
+        self.assertEqual(task["assignee"], "cto")
+        self.assertIn("arbitration_report", task)
+        self.assertTrue(task["arbitration_report_path"].endswith(".md"))
+        self.assertIn("ARB-TSK-9006", task["arbitration_report_path"])
+
+        # 检查仲裁报告文件落盘
+        arb_file = Path(self.temp_dir.name) / task["arbitration_report_path"]
+        self.assertTrue(arb_file.exists())
+        content = arb_file.read_text(encoding="utf-8")
+        self.assertIn("首席技术官 (CTO) 仲裁", content)
+        self.assertIn("SQL injection risk 2", content)
+        self.assertEqual(task["arbitration_report"], content)
+
 
 if __name__ == "__main__":
     unittest.main()

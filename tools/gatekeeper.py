@@ -211,13 +211,13 @@ class Gatekeeper:
             return False, f"Security Auditor VETO: Found {len(findings)} vulnerability/secret violations!", findings
         return True, "Security audit passed. Zero hardcoded secrets and dangerous execution found.", []
 
-    def check_gate_4_testing(self, task_id: str, test_command: str = "python -m unittest") -> Tuple[bool, str, Dict[str, Any]]:
+    def check_gate_4_testing(self, task_id: str, test_command: str = "python -m unittest discover -s tests") -> Tuple[bool, str, Dict[str, Any]]:
         """
         Gate 4: 独立自动化测试与防作弊验证门禁 (QA 工程师一票否决权 #FR)。
         必须存在独立的 tests/ 目录与测试用例，并在干净子进程中执行测试套件，返回码必须为 0。
 
         :param task_id: 关联工单编号
-        :param test_command: 测试套件执行命令 (默认 python -m unittest)
+        :param test_command: 测试套件执行命令 (默认 python -m unittest discover -s tests)
         :return: (是否通过, 审核描述, 执行详情元数据)
         """
         tests_dir = self.root_dir / "tests"
@@ -270,6 +270,88 @@ class Gatekeeper:
             return False, "Doc Specialist VETO (#DR-1): API endpoints modified without updating 'docs/api/' or README!"
         return True, "Code-Documentation synchronization verified."
 
+    def run_unified_qa_audit(
+        self,
+        task_id: str,
+        commit_msg: Optional[str] = None,
+        target_dir: str = "src",
+        test_command: str = "python -m unittest discover -s tests"
+    ) -> Tuple[bool, str, Dict[str, Any]]:
+        """
+        质检审查小组 (qa_board) 核心三合一递进质检流水线：
+        工序 1: AST 静态语法快筛与提交规范校验 (若 commit_msg 提供)
+        工序 2: SAST 机密泄露与高危调用安全扫描
+        工序 3: 自动化测试套件自适应执行 (返回码必须为 0，通过率必须 100%)
+
+        若任一工序失败，立刻阻断并返回对应否决类型 (QR / SR / FR)；
+        若三工序全部绿灯，自动落盘写入 docs/qa/VERIFY-{task_id}.md 并签发 REC 收据。
+
+        :param task_id: 工单编号
+        :param commit_msg: 提交信息 (可选)
+        :param target_dir: 源码扫描目录 (默认 src)
+        :param test_command: 测试执行命令
+        :return: (是否全通, 汇总说明, 结果元数据)
+        """
+        # 工序 1: 提交规范与 AST 检查
+        if commit_msg:
+            ok1, msg1, det1 = self.check_gate_2_review(task_id, commit_msg)
+            if not ok1:
+                return False, f"[工序1-规范否决 #QR] {msg1}", {"veto_type": "QR", "step": 1, "details": det1}
+
+        # 工序 2: SAST 安全机密扫描
+        ok2, msg2, findings2 = self.check_gate_3_security(task_id, target_dir)
+        if not ok2:
+            return False, f"[工序2-安全否决 #SR] {msg2}", {"veto_type": "SR", "step": 2, "findings": findings2}
+
+        # 工序 3: 自动化单元测试回归
+        ok3, msg3, det3 = self.check_gate_4_testing(task_id, test_command)
+        if not ok3:
+            return False, f"[工序3-功能单测否决 #FR] {msg3}", {"veto_type": "FR", "step": 3, "details": det3}
+
+        # 三审全通：自动生成综合质检报告 docs/qa/VERIFY-<TaskID>.md
+        qa_dir = self.root_dir / "docs" / "qa"
+        qa_dir.mkdir(parents=True, exist_ok=True)
+        verify_file = qa_dir / f"VERIFY-{task_id}.md"
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        report_lines = [
+            f"# 【AegisFlow 质检审查小组 (QA Board) 综合质检评估报告】",
+            f"> **工单编号**: `{task_id}` | **评估结论**: `STATUS: PASS (三审全通)` | **执行时间**: `{now_str}`",
+            "",
+            "---",
+            "",
+            "## 1. 质检流水线三阶工序执行清单",
+            "- [x] **工序 1: 代码规范与 AST 快筛** ➔ ✅ 通过 (AST 语法无错，提交信息合规)",
+            "- [x] **工序 2: SAST 独立安全审计** ➔ ✅ 通过 (0 敏感密钥明文泄露，0 动态危险调用)",
+            f"- [x] **工序 3: 自动化测试套件回归** ➔ ✅ 通过 (执行退出码: 0, 100% PASS)",
+            "",
+            "## 2. 详细执行指标",
+            f"- **测试执行命令**: `{test_command}`",
+            f"- **源码安全扫描目录**: `{target_dir}` (发现违规: 0 项)",
+            "- **质检委员会签名**: `qa_board` (审查、安全、测试三合一闭环)",
+            "",
+            "## 3. 准出放行建议",
+            "本工单已顺利通过全部机器门禁，准予移交活文档工程师 (`doc_engineer`) 同步技术资产与架构地图。",
+            "",
+            "---",
+            "*报告签发: AegisFlow 质检审查小组 (QA Board)*"
+        ]
+        with open(verify_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(report_lines))
+
+        # 签发综合密码学收据
+        receipt_path = self.issue_receipt(
+            task_id,
+            "gate_qa_audit",
+            True,
+            {"report": str(verify_file.relative_to(self.root_dir)), "test_meta": det3}
+        )
+
+        return True, "QA Board unified audit PASSED. Comprehensive report generated.", {
+            "report_file": str(verify_file.relative_to(self.root_dir)),
+            "receipt_file": receipt_path
+        }
+
     def issue_receipt(self, task_id: str, gate_key: str, outcome: bool, details: Dict[str, Any]) -> str:
         """
         签发不可篡改的密码学收据 (Cryptographic Receipt)。
@@ -298,3 +380,4 @@ class Gatekeeper:
         with open(target_file, "w", encoding="utf-8") as f:
             json.dump(receipt_data, f, indent=2, ensure_ascii=False)
         return str(target_file.relative_to(self.root_dir))
+

@@ -1228,6 +1228,15 @@
         <!-- 动态生成通俗人类可读的质检报告单 -->
       </div>
 
+      <!-- 8.5 ⚖️ 首席技术官 (CTO) 熔断仲裁诊断书 (BLOCKED 专属) -->
+      <div id="modalArbitrationSection" style="display:none; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:12.5px; font-weight:700; color:var(--red);">⚖️ 首席技术官 (CTO) 仲裁诊断报告书 (Arbitration Report)</span>
+          <span style="font-size:11.5px; color:var(--red);">三振硬熔断接管中 · 根因深度剖析</span>
+        </div>
+        <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.35); border-radius:10px; padding:14px 18px; font-size:12.5px; line-height:1.65; color:var(--text); white-space:pre-wrap; font-family:var(--sans);" id="modalArbitrationContent"></div>
+      </div>
+
       <!-- 9. 质检打回与历史缺陷档案 -->
       <div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -1351,35 +1360,46 @@ let gSortAsc = true;
 let gSelectedTaskId = null;
 
 // 11 大标准角色字典
+// 5 常驻骨干 + 2 阶段专家 + 1 仲裁官 + 1 最高主权
 const ROLE_DEFINITIONS = {
-  pm: { title: "团队负责人 (PM)", icon: "📋", scope: "团队全面统筹、业务目标拟定与需求全流程主导" },
-  architect: { title: "系统架构师", icon: "🏛️", scope: "系统边界与白名单契约锁定" },
-  developer: { title: "核心研发工程师", icon: "💻", scope: "业务逻辑与特性代码实现" },
+  pm: { title: "团队负责人 (PM)", icon: "📋", scope: "团队全面统筹、业务目标拟定与量化验收准则 (AC)" },
+  architect: { title: "系统架构师", icon: "🏛️", scope: "系统边界、技术方案与白名单契约锁定 (Gate 1)" },
+  developer: { title: "核心研发工程师", icon: "💻", scope: "范围白名单内精准实现与 1:1 镜像单测自测" },
+  qa_board: { title: "质检审查小组", icon: "🧪", scope: "三合一递进质检 (规范审查 + SAST安全 + 自动化单测)" },
+  doc_engineer: { title: "活文档工程师", icon: "📚", scope: "接口文档同步与 AST 全景代码架构地图维护" },
+  researcher: { title: "技术调研专家", icon: "🔬", scope: "初次/陌生技术路线探索与可行性探针报告 (按需唤醒)" },
+  devops: { title: "部署运维专家", icon: "🚀", scope: "架构期环境部署参谋与终局发布演练打包 (两段式)" },
+  cto: { title: "首席技术仲裁官", icon: "⚖️", scope: "平时休眠，连续3次打回熔断唤醒，根因剖析与时光倒流" },
+  human_admin: { title: "人类管理员", icon: "👑", scope: "项目最终业务验收与不可逆封板归档 (最高主权)" },
+  // 历史兼容
   code_reviewer: { title: "代码审查员", icon: "🔍", scope: "AST语法快筛与提交规范审查" },
   security_engineer: { title: "独立安全审计员", icon: "🛡️", scope: "SAST机密与漏洞扫描防护" },
   qa_engineer: { title: "质量验证测试员", icon: "🧪", scope: "自动化测试与镜像对齐验证" },
-  doc_engineer: { title: "活文档工程师", icon: "📚", scope: "架构地图与API文档同步" },
-  dba: { title: "数据库架构师", icon: "🗄️", scope: "表结构评估与数据一致性" },
-  uiux_designer: { title: "UI/UX体验设计师", icon: "🎨", scope: "交互走查与界面规范审查" },
   release_engineer: { title: "发布协调主管", icon: "🚀", scope: "版本组装与全绿交付核验" },
-  cto: { title: "首席技术仲裁官", icon: "⚖️", scope: "硬熔断仲裁与时空快照回滚" },
-  human_operator: { title: "人类管理员", icon: "👑", scope: "项目最终业务验收与不可逆归档" }
+  human_operator: { title: "人类管理员", icon: "👑", scope: "项目最终业务验收与不可逆归档" },
+  uiux_designer: { title: "UI/UX体验设计师", icon: "🎨", scope: "交互走查与界面规范审查" },
+  dba: { title: "数据库架构师", icon: "🗄️", scope: "表结构评估与数据一致性" }
 };
 
 // 阶段映射
 const STAGE_MAP = {
+  PENDING: { label: "待规划设计", desc: "PM 制定量化 AC，架构师技术设计" },
+  READY_TO_CLAIM: { label: "待领取", desc: "架构白名单契约锁定 (Gate 1)，静候认领" },
+  IN_PROGRESS: { label: "研发编码中", desc: "特性分支白名单内编写代码与单测" },
+  IN_AUDIT: { label: "质检审查中", desc: "质检小组三合一流水线 (规范+安全+单测)" },
+  REVISE: { label: "质检整改", desc: "质检未通过打回整改，开发修复中" },
+  DOC_SYNC: { label: "文档同步中", desc: "活文档工程师刷新架构地图与接口" },
+  COMPLETED: { label: "待终审验收", desc: "全部门禁已通关，运维演练完毕，等待人类终审" },
+  ACCEPTED: { label: "已验收归档", desc: "人类管理员已签字放行，项目交付闭环" },
+  BLOCKED: { label: "熔断挂起", desc: "连续3次门禁未通关，休眠 CTO 唤醒仲裁诊断" },
+  CANCELLED: { label: "已取消", desc: "工单已被终止或废弃" },
+  // 历史阶段平滑兼容
   BACKLOG: { label: "待规划", desc: "等待需求梳理与排期" },
   SPECIFICATION: { label: "规划中", desc: "正在拟定需求与规格说明" },
   CONTRACT_FROZEN: { label: "契约已锁定", desc: "架构白名单与准则已固化" },
-  IN_PROGRESS: { label: "研发编码中", desc: "特性分支正在编写代码" },
   CODE_REVIEW: { label: "代码审查中", desc: "正在进行 AST 语法与规范评审" },
   SECURITY_AUDIT: { label: "安全审计中", desc: "正在执行 SAST 机密与漏洞扫描" },
-  TESTING: { label: "测试验证中", desc: "正在执行自动化单元测试回归" },
-  DOC_SYNC: { label: "文档同步中", desc: "正在刷新架构地图与接口文档" },
-  COMPLETED: { label: "待终审验收", desc: "全部门禁已通关，等待管理层放行" },
-  ACCEPTED: { label: "已验收归档", desc: "管理员已签字放行，项目交付闭环" },
-  BLOCKED: { label: "熔断挂起", desc: "连续3次门禁未通关，已锁死权限" },
-  CANCELLED: { label: "已取消", desc: "工单已被终止" }
+  TESTING: { label: "测试验证中", desc: "正在执行自动化单元测试回归" }
 };
 
 // 1. 视图切换
@@ -1516,24 +1536,26 @@ function renderStageKanban(container, tasks) {
   `;
 }
 
-// 5.2 维度 2: 状态看板 (全面覆盖7大标准生命周期，杜绝卡片漏显)
+// 5.2 维度 2: 状态看板 (全面覆盖 9 大标准生命周期泳道)
 function renderStatusKanban(container, tasks) {
   const lanes = [
-    { id: "st-pending", title: "1. 待规划 PENDING", filter: t => ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN"].includes(t.stage) },
-    { id: "st-prog", title: "2. 进行中 IN PROGRESS", filter: t => t.stage === "IN_PROGRESS" && (!t.rejections || t.rejections.length === 0) },
-    { id: "st-review", title: "3. 门禁评审 REVIEWING", filter: t => ["CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC"].includes(t.stage) },
-    { id: "st-rej", title: "4. 质检整改 REVISE", filter: t => t.stage === "IN_PROGRESS" && (t.rejections || []).length > 0 },
-    { id: "st-complete", title: "5. 待终审 COMPLETED", filter: t => t.stage === "COMPLETED" },
-    { id: "st-accept", title: "6. 已验收 ACCEPTED", filter: t => t.stage === "ACCEPTED" },
-    { id: "st-blocked", title: "7. 熔断挂起 BLOCKED", filter: t => t.stage === "BLOCKED" }
+    { id: "st-pending", title: "1. 待规划 PENDING", filter: t => ["PENDING", "BACKLOG", "SPECIFICATION"].includes(t.stage) },
+    { id: "st-ready", title: "2. 待领取 READY", filter: t => ["READY_TO_CLAIM", "CONTRACT_FROZEN"].includes(t.stage) },
+    { id: "st-prog", title: "3. 进行中 IN PROGRESS", filter: t => t.stage === "IN_PROGRESS" && (!t.rejections || t.rejections.length === 0) },
+    { id: "st-audit", title: "4. 质检中 IN AUDIT", filter: t => ["IN_AUDIT", "CODE_REVIEW", "SECURITY_AUDIT", "TESTING"].includes(t.stage) },
+    { id: "st-rej", title: "5. 质检整改 REVISE", filter: t => t.stage === "REVISE" || (t.stage === "IN_PROGRESS" && (t.rejections || []).length > 0) },
+    { id: "st-doc", title: "6. 文档同步 DOC SYNC", filter: t => t.stage === "DOC_SYNC" },
+    { id: "st-complete", title: "7. 待终审 COMPLETED", filter: t => t.stage === "COMPLETED" },
+    { id: "st-accept", title: "8. 已验收 ACCEPTED", filter: t => t.stage === "ACCEPTED" },
+    { id: "st-blocked", title: "9. 熔断挂起 BLOCKED", filter: t => t.stage === "BLOCKED" }
   ];
 
   container.innerHTML = `
-    <div class="lanes-container lanes-7">
+    <div class="lanes-container" style="display:grid; grid-template-columns: repeat(${lanes.length}, minmax(280px, 1fr)); gap: 14px; overflow-x: auto; padding-bottom: 8px;">
       ${lanes.map(l => {
         const laneTasks = tasks.filter(l.filter);
         return `
-          <div class="lane">
+          <div class="lane" style="min-width: 280px;">
             <div class="lane-header">
               <span class="lane-title">${l.title}</span>
               <span class="lane-count">${laneTasks.length}</span>
@@ -1548,26 +1570,26 @@ function renderStatusKanban(container, tasks) {
   `;
 }
 
-// 5.3 维度 3: 角色面板 (展示全11角色分组)
+// 5.3 维度 3: 角色面板 (5 常驻骨干 + 2 阶段专家 + 1 仲裁官 + 1 最高主权)
 function renderRolePanel(container, tasks) {
   const roleGroups = [
-    { title: "📋 产品与需求 (PM)", filter: t => t.assignee === "pm" },
-    { title: "🏛️ 架构与边界 (Architect)", filter: t => t.assignee === "architect" },
+    { title: "📋 产品需求 (PM)", filter: t => t.assignee === "pm" },
+    { title: "🏛️ 系统架构 (Architect)", filter: t => t.assignee === "architect" },
     { title: "💻 核心研发 (Developer)", filter: t => t.assignee === "developer" },
-    { title: "🔍 规范审查 (Reviewer)", filter: t => t.assignee === "code_reviewer" },
-    { title: "🛡️ 独立网安 (Security)", filter: t => t.assignee === "security_engineer" },
-    { title: "🧪 质量测试 (QA)", filter: t => t.assignee === "qa_engineer" },
-    { title: "🗄️ 数据与体验 (DBA/UIUX)", filter: t => ["dba", "uiux_designer"].includes(t.assignee) },
-    { title: "📚 活文档专家 (Doc)", filter: t => t.assignee === "doc_engineer" },
-    { title: "🚀 发布与裁决 (CTO/Release)", filter: t => ["release_engineer", "cto", "human_operator"].includes(t.assignee) }
+    { title: "🧪 质检审查 (QA Board)", filter: t => ["qa_board", "code_reviewer", "security_engineer", "qa_engineer"].includes(t.assignee) },
+    { title: "📚 活文档同步 (Doc)", filter: t => t.assignee === "doc_engineer" },
+    { title: "🔬 技术预研 (Researcher)", filter: t => t.assignee === "researcher" },
+    { title: "🚀 部署运维 (DevOps)", filter: t => ["devops", "release_engineer"].includes(t.assignee) },
+    { title: "⚖️ 技术仲裁 (CTO)", filter: t => t.assignee === "cto" },
+    { title: "👑 人类终审 (Admin)", filter: t => ["human_admin", "human_operator"].includes(t.assignee) }
   ];
 
   container.innerHTML = `
-    <div class="lanes-container lanes-7">
+    <div class="lanes-container" style="display:grid; grid-template-columns: repeat(${roleGroups.length}, minmax(280px, 1fr)); gap: 14px; overflow-x: auto; padding-bottom: 8px;">
       ${roleGroups.map(rg => {
         const laneTasks = tasks.filter(rg.filter);
         return `
-          <div class="lane">
+          <div class="lane" style="min-width: 280px;">
             <div class="lane-header">
               <span class="lane-title">${rg.title}</span>
               <span class="lane-count">${laneTasks.length}</span>
@@ -2179,7 +2201,17 @@ function showTaskDetails(t) {
     `;
   }
 
-  // 7. 弹窗 Footer: 支持一键放行终审
+  // 6.5 ⚖️ 首席技术官 (CTO) 仲裁报告展示 (BLOCKED 专属)
+  const arbSection = document.getElementById("modalArbitrationSection");
+  const arbContent = document.getElementById("modalArbitrationContent");
+  if (t.stage === "BLOCKED" && (t.arbitration_report || (t.rejections && t.rejections.length >= 3))) {
+    arbSection.style.display = "block";
+    arbContent.innerText = t.arbitration_report || "三振出局硬熔断触发！系统已唤醒休眠 CTO 接入仲裁，请联系管理员审阅事件日志并执行时光倒流回退。";
+  } else {
+    arbSection.style.display = "none";
+  }
+
+  // 7. 弹窗 Footer: 支持认领、退单、与一键放行终审
   const footerStatusEl = document.getElementById("modalFooterStatus");
   const acceptActionContainer = document.getElementById("modalAcceptActionContainer");
 
@@ -2191,9 +2223,66 @@ function showTaskDetails(t) {
         👑 确认终审验收通过 (Accept & Archive)
       </button>
     `;
+  } else if (t.stage === "READY_TO_CLAIM") {
+    acceptActionContainer.innerHTML = `
+      <button class="btn btn-primary" onclick="claimTask('${t.id}')" style="background:var(--primary); color:#fff; padding:6px 14px; border-radius:6px; font-weight:700;">
+        🚀 认领此工单 (Claim Task)
+      </button>
+    `;
+  } else if (t.stage === "IN_PROGRESS") {
+    acceptActionContainer.innerHTML = `
+      <button class="btn btn-secondary" onclick="surrenderTask('${t.id}')" style="border-color:var(--amber); color:var(--amber);">
+        🔄 主动退单 (Surrender)
+      </button>
+    `;
   } else {
     acceptActionContainer.innerHTML = "";
   }
+}
+
+// 8.5 认领与退单交互
+function claimTask(taskId) {
+  const role = prompt("请输入认领此工单的角色标识 (默认 developer):", "developer");
+  if (!role) return;
+
+  fetch("/api/task/claim", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: taskId, role: role.trim() })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      alert(`🚀 工单 ${taskId} 认领成功，状态已变更为【进行中】！`);
+      fetchBoard(true);
+      if (res.task) showTaskDetails(res.task);
+    } else {
+      alert("认领失败被门禁拦截: " + (res.error || "未知错误"));
+    }
+  })
+  .catch(err => alert("网络请求异常: " + err));
+}
+
+function surrenderTask(taskId) {
+  const reason = prompt("请输入主动退还工单的具体原因与技术障碍:");
+  if (!reason) return;
+
+  fetch("/api/task/surrender", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: taskId, role: "developer", reason: reason.trim() })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      alert(`🔄 工单 ${taskId} 已成功退还至待领池！`);
+      fetchBoard(true);
+      if (res.task) showTaskDetails(res.task);
+    } else {
+      alert("退单失败: " + (res.error || "未知错误"));
+    }
+  })
+  .catch(err => alert("网络请求异常: " + err));
 }
 
 // 9. 人类管理员一键终审验收放行
@@ -2207,6 +2296,7 @@ function acceptTask(taskId) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       id: taskId,
+      role: "human_admin",
       note: "人类管理员在Web大盘确认终审验收通过",
       result: "全生命周期质量门禁全绿通过，单元测试覆盖率达标，代码文档一致，人类管理员核准通过并封板归档。"
     })

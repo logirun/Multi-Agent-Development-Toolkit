@@ -18,104 +18,140 @@ from typing import Dict, List, Optional, Any
 DEFAULT_STORAGE_FILE = Path(".agents") / ".virtual_company_board.json"
 EVENT_STREAM_FILE = Path(".agents") / "event_stream.jsonl"
 
-# 敏捷研发生命周期标准阶段
+# 敏捷研发生命周期标准阶段 (核心 8 态 + 2 异常终态)
 STAGES = [
-    "BACKLOG",            # 初始需求池 / 原始业务诉求
-    "SPECIFICATION",      # 规范制定中：PM 编写 PRD/AC，架构师设计契约
-    "CONTRACT_FROZEN",    # Gate 1 通过：契约经架构师锁定并计算 SHA256 摘要
-    "IN_PROGRESS",        # 研发实现中：开发人员在分支中依据契约编码
-    "CODE_REVIEW",        # Gate 2：代码评审员审查质量规范与 Conventional Commits
-    "SECURITY_AUDIT",     # Gate 3：安全审计员进行密钥与 OWASP 漏洞排查 (拥有 #SR 一票否决权)
-    "TESTING",            # Gate 4：QA 工程师执行独立自动化测试套件 (拥有 #FR 一票否决权)
-    "DOC_SYNC",           # Gate 5：活文档专家核验代码与接口文档一致性 (拥有 #DR 一票否决权)
-    "COMPLETED",          # 开发与门禁全部闭环，等待人类操作员终审
-    "ACCEPTED",           # Gate 6：人类物理终端终审确认（不可逆终态）
-    "BLOCKED",            # 熔断挂起：累计打回达到 3 次或遭遇不可抗依赖阻塞
-    "CANCELLED"           # 已取消 / 需求废弃
+    "PENDING",            # 1. 待规划设计：PM 制定量化 AC，架构师技术设计
+    "READY_TO_CLAIM",     # 2. 待领取：架构白名单契约锁定 (Gate 1)，静候认领
+    "IN_PROGRESS",        # 3. 进行中：核心研发白名单编码与 1:1 单测自测
+    "IN_AUDIT",           # 4. 质检中：质检审查小组 (qa_board) 串行跑规范/安全/单测
+    "REVISE",             # 5. 质检整改：质检未过打回整改 (累计3次硬熔断)
+    "DOC_SYNC",           # 6. 文档同步中：活文档工程师更新接口与全景架构图
+    "COMPLETED",          # 7. 待终审/就绪：全门禁闭环，运维演练完毕，等待人类终审
+    "ACCEPTED",           # 8. 已验收归档：人类管理员终审封板确认 (不可逆终态)
+    "BLOCKED",            # 9. 熔断挂起：连续 3 次打回或严重死锁，休眠 CTO 唤醒仲裁
+    "CANCELLED",          # 10. 已取消 / 需求废弃
+    # --- 历史阶段平滑兼容别名 ---
+    "BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN", "CODE_REVIEW", "SECURITY_AUDIT", "TESTING"
 ]
 
-# 工坊 11 大标准研发角色列表
+# 工坊标准研发角色列表 (5 常驻骨干 + 2 阶段专家 + 1 仲裁官 + 1 最高主权)
 ROLES = [
-    "pm",
-    "architect",
-    "uiux_designer",
-    "dba",
-    "developer",
-    "code_reviewer",
-    "security_engineer",
-    "qa_engineer",
-    "doc_engineer",
-    "release_engineer",
-    "cto"
+    "pm",                 # 团队负责人 / PM 📋
+    "architect",          # 系统架构师 🏛️
+    "developer",          # 核心研发工程师 💻
+    "qa_board",           # 质检审查小组 🧪 (整合审查、安全、测试三合一)
+    "doc_engineer",       # 活文档工程师 📚
+    "researcher",         # 技术调研专家 🔬 (初次/陌生技术按需唤醒)
+    "devops",             # 部署运维专家 🚀 (架构期参谋 + 发版两段式)
+    "cto",                # 首席技术仲裁官 ⚖️ (休眠，熔断仲裁与时光倒流)
+    "human_admin",        # 人类管理员 👑 (最高终审主权)
+    # --- 历史角色平滑兼容别名 ---
+    "code_reviewer", "security_engineer", "qa_engineer", "release_engineer", "human_operator", "uiux_designer", "dba"
 ]
 
 # 实体分类学前缀与打回类别定义
 ITEM_TYPES = ["REQ", "TSK", "SPK", "FIX", "DOC"]
-REJECT_TYPES = ["QR", "SR", "FR", "DR"]  # QR:质量审查 / SR:安全审计 / FR:功能测试 / DR:文档不同步
+REJECT_TYPES = ["QR", "SR", "FR", "DR"]  # QR:规范质量 / SR:安全机密 / FR:功能单测 / DR:文档同步
 
-# 11 大标准角色职责定位与画像字典
+# 标准角色职责定位与画像字典
 ROLE_PROFILES: Dict[str, Dict[str, str]] = {
-    "pm": {"title": "团队负责人 (PM)", "icon": "📋", "scope": "团队全面统筹、业务目标拟定与需求全流程主导"},
-    "architect": {"title": "系统架构师", "icon": "🏛️", "scope": "系统边界与白名单契约锁定"},
-    "uiux_designer": {"title": "UI/UX体验设计师", "icon": "🎨", "scope": "交互走查与界面规范审查"},
-    "dba": {"title": "数据库管理员", "icon": "🗄️", "scope": "表结构评估与数据一致性"},
-    "developer": {"title": "核心研发工程师", "icon": "💻", "scope": "业务逻辑与特性代码实现"},
+    "pm": {"title": "团队负责人 (PM)", "icon": "📋", "scope": "团队全面统筹、业务目标拟定与量化验收准则 (AC)"},
+    "architect": {"title": "系统架构师", "icon": "🏛️", "scope": "系统边界、技术方案与白名单契约锁定 (Gate 1)"},
+    "developer": {"title": "核心研发工程师", "icon": "💻", "scope": "范围白名单内精准实现与 1:1 镜像单测自测"},
+    "qa_board": {"title": "质检审查小组", "icon": "🧪", "scope": "三合一递进质检 (规范审查 + SAST安全 + 自动化单测)"},
+    "doc_engineer": {"title": "活文档工程师", "icon": "📚", "scope": "接口文档同步与 AST 全景代码架构地图维护"},
+    "researcher": {"title": "技术调研专家", "icon": "🔬", "scope": "初次/陌生技术路线探索与可行性探针报告 (按需唤醒)"},
+    "devops": {"title": "部署运维专家", "icon": "🚀", "scope": "架构期环境部署参谋与终局发布演练打包 (两段式)"},
+    "cto": {"title": "首席技术仲裁官", "icon": "⚖️", "scope": "平时休眠，连续3次打回熔断唤醒，根因剖析与时光倒流"},
+    "human_admin": {"title": "人类管理员", "icon": "👑", "scope": "项目最终业务验收与不可逆封板归档 (最高主权)"},
+    # 兼容历史画像
     "code_reviewer": {"title": "代码审查员", "icon": "🔍", "scope": "AST语法快筛与提交规范审查"},
     "security_engineer": {"title": "独立安全审计员", "icon": "🛡️", "scope": "SAST机密与漏洞扫描防护"},
     "qa_engineer": {"title": "质量验证测试员", "icon": "🧪", "scope": "自动化测试与镜像对齐验证"},
-    "doc_engineer": {"title": "活文档工程师", "icon": "📚", "scope": "架构地图与API文档同步"},
     "release_engineer": {"title": "发布协调主管", "icon": "🚀", "scope": "版本组装与全绿交付核验"},
-    "cto": {"title": "首席技术仲裁官", "icon": "⚖️", "scope": "硬熔断仲裁与时空快照回滚"},
-    "human_operator": {"title": "人类管理员", "icon": "👑", "scope": "项目最终业务验收与不可逆归档"}
+    "human_operator": {"title": "人类管理员", "icon": "👑", "scope": "项目最终业务验收与不可逆归档"},
+    "uiux_designer": {"title": "UI/UX体验设计师", "icon": "🎨", "scope": "交互走查与界面规范审查"},
+    "dba": {"title": "数据库管理员", "icon": "🗄️", "scope": "表结构评估与数据一致性"}
 }
 
 # 角色与阶段流转严格权限矩阵 (Strict Role-Stage Transition Permissions)
 # 核心铁律：开发者只能领单或提审，绝对禁止直接标记完成；每一步必须由对应质检角色审核放行
 STAGE_PERMISSIONS: Dict[str, Dict[str, Any]] = {
-    "SPECIFICATION": {
-        "allowed_roles": ["pm", "architect"],
-        "from_stages": ["BACKLOG"],
-        "err_msg": "权限拦截：只有团队负责人 (pm) 或系统架构师可推进至 SPECIFICATION (需求规格制定阶段)。"
+    "PENDING": {
+        "allowed_roles": ["pm", "architect", "human_admin", "human_operator"],
+        "from_stages": ["BACKLOG", "SPECIFICATION", "BLOCKED"],
+        "err_msg": "权限拦截：只有团队负责人 (pm) 或系统架构师可规划需求阶段 (PENDING)。"
     },
-    "CONTRACT_FROZEN": {
+    "READY_TO_CLAIM": {
         "allowed_roles": ["architect", "pm"],
-        "from_stages": ["SPECIFICATION", "BACKLOG"],
-        "err_msg": "权限拦截：只有系统架构师 (architect) 可锁定架构契约 (CONTRACT_FROZEN)。"
+        "from_stages": ["PENDING", "SPECIFICATION", "BACKLOG", "CONTRACT_FROZEN"],
+        "err_msg": "权限拦截：只有系统架构师 (architect) 在锁定架构契约后可推进至 READY_TO_CLAIM (待领取)。"
     },
     "IN_PROGRESS": {
         "allowed_roles": ["developer", "pm", "cto", "architect"],
-        "from_stages": ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN", "CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC", "BLOCKED"],
+        "from_stages": ["READY_TO_CLAIM", "PENDING", "REVISE", "IN_AUDIT", "BLOCKED", "CONTRACT_FROZEN", "BACKLOG", "SPECIFICATION", "CODE_REVIEW", "SECURITY_AUDIT", "TESTING", "DOC_SYNC"],
         "err_msg": "权限拦截：只有研发工程师 (developer) 或 CTO/PM 可启动研发编码 (IN_PROGRESS)。"
+    },
+    "IN_AUDIT": {
+        "allowed_roles": ["developer", "pm", "qa_board"],
+        "from_stages": ["IN_PROGRESS", "REVISE"],
+        "err_msg": "权限拦截：只有研发工程师 (developer) 在完成编码与自测后可提交质检审查 (IN_AUDIT)。"
+    },
+    "REVISE": {
+        "allowed_roles": ["qa_board", "code_reviewer", "security_engineer", "qa_engineer", "doc_engineer", "pm"],
+        "from_stages": ["IN_AUDIT", "DOC_SYNC", "CODE_REVIEW", "SECURITY_AUDIT", "TESTING"],
+        "err_msg": "权限拦截：只有质检审查小组 (qa_board) 或活文档工程师可驳回任务至 REVISE (质检整改)。"
+    },
+    "DOC_SYNC": {
+        "allowed_roles": ["qa_board", "qa_engineer", "doc_engineer", "pm"],
+        "from_stages": ["IN_AUDIT", "TESTING", "IN_PROGRESS"],
+        "err_msg": "权限拦截：只有质检审查小组 (qa_board) 质检全通后可移交活文档同步 (DOC_SYNC)。"
+    },
+    "COMPLETED": {
+        "allowed_roles": ["doc_engineer", "devops", "release_engineer", "qa_board", "qa_engineer", "pm"],
+        "from_stages": ["DOC_SYNC", "TESTING", "IN_AUDIT", "SECURITY_AUDIT", "CODE_REVIEW", "IN_PROGRESS"],
+        "err_msg": "权限拦截：研发人员 (developer) 绝对禁止直接将工单标记为完成 (COMPLETED)！必须由活文档/运维/质检在完成全部质检闭环后方可完成！"
+    },
+    "ACCEPTED": {
+        "allowed_roles": ["human_admin", "human_operator"],
+        "from_stages": ["COMPLETED"],
+        "err_msg": "权限拦截：ACCEPTED 为人类管理员物理专属终态，智能体严禁自我验收！"
+    },
+    "BLOCKED": {
+        "allowed_roles": ["cto", "qa_board", "pm", "human_admin"],
+        "from_stages": ["IN_AUDIT", "REVISE", "IN_PROGRESS", "DOC_SYNC", "TESTING", "CODE_REVIEW", "SECURITY_AUDIT"],
+        "err_msg": "权限拦截：BLOCKED 为熔断挂起状态，由系统触发或 CTO 介入仲裁。"
+    },
+    "CANCELLED": {
+        "allowed_roles": ["pm", "human_admin", "human_operator"],
+        "from_stages": ["PENDING", "READY_TO_CLAIM", "IN_PROGRESS", "IN_AUDIT", "REVISE", "DOC_SYNC", "COMPLETED", "BLOCKED", "BACKLOG"],
+        "err_msg": "权限拦截：只有 PM 或人类管理员有权取消/废弃任务。"
+    },
+    # 历史阶段兼容
+    "SPECIFICATION": {
+        "allowed_roles": ["pm", "architect"],
+        "from_stages": ["BACKLOG", "PENDING"],
+        "err_msg": "权限拦截：只有 PM 或系统架构师可推进至 SPECIFICATION。"
+    },
+    "CONTRACT_FROZEN": {
+        "allowed_roles": ["architect", "pm"],
+        "from_stages": ["SPECIFICATION", "BACKLOG", "PENDING"],
+        "err_msg": "权限拦截：只有系统架构师可锁定契约 (CONTRACT_FROZEN)。"
     },
     "CODE_REVIEW": {
         "allowed_roles": ["developer", "code_reviewer", "pm"],
         "from_stages": ["IN_PROGRESS"],
-        "err_msg": "权限拦截：只有研发工程师 (developer) 在完成编码后可提交代码评审 (CODE_REVIEW)。"
+        "err_msg": "权限拦截：只有研发工程师可提交代码审查。"
     },
     "SECURITY_AUDIT": {
         "allowed_roles": ["code_reviewer", "security_engineer", "pm"],
         "from_stages": ["CODE_REVIEW", "IN_PROGRESS"],
-        "err_msg": "权限拦截：只有代码审查员 (code_reviewer) 评审合格后可移交安全审计 (SECURITY_AUDIT)。开发者无权跳过代码审查！"
+        "err_msg": "权限拦截：只有代码审查员评审合格后可移交安全审计。"
     },
     "TESTING": {
-        "allowed_roles": ["security_engineer", "qa_engineer", "pm"],
+        "allowed_roles": ["security_engineer", "qa_engineer", "qa_board", "pm"],
         "from_stages": ["SECURITY_AUDIT", "CODE_REVIEW", "IN_PROGRESS"],
-        "err_msg": "权限拦截：只有独立安全审计员 (security_engineer) 审计合格后可移交自动化测试 (TESTING)。严禁未安全审计直接进入测试！"
-    },
-    "DOC_SYNC": {
-        "allowed_roles": ["qa_engineer", "doc_engineer", "pm"],
-        "from_stages": ["TESTING", "IN_PROGRESS"],
-        "err_msg": "权限拦截：只有质量测试员 (qa_engineer) 验证自动化测试100%全通后可移交活文档同步 (DOC_SYNC)。"
-    },
-    "COMPLETED": {
-        "allowed_roles": ["doc_engineer", "release_engineer", "qa_engineer", "pm"],
-        "from_stages": ["DOC_SYNC", "TESTING", "SECURITY_AUDIT", "CODE_REVIEW", "IN_PROGRESS"],
-        "err_msg": "权限拦截：研发人员 (developer) 绝对禁止直接将工单标记为完成 (COMPLETED)！必须由测试/活文档/发布主管在完成全部质检闭环后方可完成！"
-    },
-    "ACCEPTED": {
-        "allowed_roles": ["human_operator"],
-        "from_stages": ["COMPLETED"],
-        "err_msg": "权限拦截：ACCEPTED 为人类管理员物理专属终态，智能体严禁自我验收！"
+        "err_msg": "权限拦截：只有安全审计员审计合格后可移交自动化测试。"
     }
 }
 
@@ -290,7 +326,8 @@ class StateManager:
         est_hours: float = 4.0,
         objective: str = "",
         collaborators: Optional[List[str]] = None,
-        result: str = ""
+        result: str = "",
+        depends_on: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         创建新的需求或任务卡片。
@@ -380,6 +417,7 @@ class StateManager:
             "stage": "BACKLOG",
             "assignee": assignee,
             "collaborators": collabs,
+            "depends_on": list(depends_on) if depends_on else [],
             "role_contributions": initial_contributions,
             "est_hours": est_hours,
             "contract_checksum": None,
@@ -438,12 +476,16 @@ class StateManager:
             raise KeyError(f"Task '{task_id}' does not exist on the board.")
         return self.data["tasks"][task_id]
 
-    def start_task(self, task_id: str, role: str) -> Dict[str, Any]:
+    def start_task(self, task_id: str, role: str = "developer") -> Dict[str, Any]:
         """
-        开始执行任务，记录真实开始时间戳。
+        开始执行任务 / 认领工单 (Claim Work Order)，记录真实开始时间戳。
 
-        防篡改规则：
-        已处于终态 (ACCEPTED / CANCELLED) 的工单严禁重新打开。
+        领单核心物理硬门禁：
+        1. 终态防篡改：已处于 ACCEPTED 或 CANCELLED 的工单严禁重新打开。
+        2. 状态准入硬锁：工单必须处于可领取状态 (READY_TO_CLAIM, PENDING, CONTRACT_FROZEN, BACKLOG, REVISE)。
+        3. 角色授权硬锁：只有 developer (或 pm/cto 特权) 可以认领。
+        4. WIP 在制品并发硬锁：单开发者同一时刻只能持有一张 IN_PROGRESS 活跃工单 (WIP Limit = 1)。
+        5. 前置依赖拓扑检查：若工单声明了 depends_on 前置依赖，依赖必须处于 ACCEPTED。
 
         :param task_id: 工单编号
         :param role: 领单角色 (通常为 developer)
@@ -452,6 +494,42 @@ class StateManager:
         task = self.get_task(task_id)
         if task["stage"] in ["ACCEPTED", "CANCELLED"]:
             raise ValueError(f"Task '{task_id}' is in terminal state '{task['stage']}'. Reopening forbidden.")
+
+        # 1. 状态准入硬锁
+        allowed_claim_stages = ["READY_TO_CLAIM", "PENDING", "CONTRACT_FROZEN", "BACKLOG", "REVISE"]
+        if task["stage"] not in allowed_claim_stages:
+            raise ValueError(
+                f"工单领单拦截: 任务 '{task_id}' 当前处于 [{task['stage']}]，并非待领取状态 (允许阶段: {allowed_claim_stages})！"
+            )
+
+        # 2. 角色授权硬锁
+        if role not in ["developer", "pm", "cto", "architect"]:
+            raise PermissionError(
+                f"工单领单拦截: 角色 '{role}' 无权认领研发工单，必须由核心研发工程师 (developer) 认领！"
+            )
+
+        # 3. WIP 在制品并发硬锁 (一人一单限制)
+        if role == "developer":
+            active_tasks = [
+                t for tid, t in self.data["tasks"].items()
+                if t.get("assignee") == role and t.get("stage") == "IN_PROGRESS" and tid != task_id
+            ]
+            if active_tasks:
+                conflict_id = active_tasks[0]["id"]
+                raise PermissionError(
+                    f"WIP 在制品限制拦截: 开发者 '{role}' 当前已持有进行中工单 [{conflict_id}]！"
+                    f"在单人单任务敏捷原则下，必须先交付或退单当前任务，方可认领新工单 (WIP Limit = 1)。"
+                )
+
+        # 4. 前置依赖拓扑检查
+        for dep_id in task.get("depends_on", []):
+            if dep_id in self.data["tasks"]:
+                dep_task = self.data["tasks"][dep_id]
+                if dep_task.get("stage") != "ACCEPTED":
+                    raise ValueError(
+                        f"前置依赖拦截: 依赖的前置工单 [{dep_id}] 尚未验收归档 (当前状态: [{dep_task.get('stage')}])，"
+                        f"工单 [{task_id}] 物理锁定，严禁提前认领！"
+                    )
 
         now_iso = datetime.now().isoformat()
         task["started_at"] = now_iso
@@ -462,10 +540,49 @@ class StateManager:
             "action": "START_WORK",
             "stage": "IN_PROGRESS",
             "role": role,
-            "note": "Work started. Timestamp recorded for lead-time audit."
+            "note": "Work order claimed and locked. Timestamp recorded for lead-time audit."
         })
         self._record_checkpoint(task_id, "IN_PROGRESS")
         self._log_event("TASK_STARTED", task_id, role, {"stage": "IN_PROGRESS"})
+        self._save()
+        return task
+
+    def claim_task(self, task_id: str, role: str = "developer") -> Dict[str, Any]:
+        """
+        认领工单别名方法，与 start_task 等价。
+        """
+        return self.start_task(task_id, role)
+
+    def surrender_task(self, task_id: str, role: str, reason: str) -> Dict[str, Any]:
+        """
+        主动退还工单 (Surrender Work Order)：
+        当开发者评估因不可抗力或技术阻碍无法完成时，允许将工单退回待领池 (READY_TO_CLAIM)，
+        清除独占锁定并记录原因，供其他开发者认领或由架构师重新梳理。
+
+        :param task_id: 工单编号
+        :param role: 操作角色 (必须是当前工单责任人)
+        :param reason: 退单具体原因与技术障碍说明
+        :return: 更新后的工单对象
+        """
+        task = self.get_task(task_id)
+        if task["stage"] != "IN_PROGRESS":
+            raise ValueError(f"退单拦截: 工单 [{task_id}] 当前处于 [{task['stage']}]，只有 [IN_PROGRESS] 状态方可退单。")
+        if task.get("assignee") != role:
+            raise PermissionError(f"退单拦截: 只有当前持单责任人 [{task.get('assignee')}] 有权退单，角色 [{role}] 无权操作。")
+
+        now_iso = datetime.now().isoformat()
+        task["stage"] = "READY_TO_CLAIM"
+        task["assignee"] = None  # 释放持单责任人锁定，回归公海待领池
+        task["started_at"] = None  # 重置开工时间戳
+        task["history"].append({
+            "timestamp": now_iso,
+            "action": "SURRENDER_TASK",
+            "stage": "READY_TO_CLAIM",
+            "role": role,
+            "note": f"Work order surrendered by {role}. Reason: {reason}"
+        })
+        self._record_checkpoint(task_id, "READY_TO_CLAIM")
+        self._log_event("TASK_SURRENDERED", task_id, role, {"reason": reason})
         self._save()
         return task
 
@@ -533,7 +650,24 @@ class StateManager:
                     f"{perm['err_msg']} (Allowed roles: {perm['allowed_roles']})"
                 )
 
-        # 2. 物理交付物文档硬校验 (当工程存在对应 docs 目录时，强制要求对应质检角色产出报告)
+        # 2. 物理交付物与前置因果硬校验 (严格防止 AI 虚假宣称完成)
+        # (a) 推进至 READY_TO_CLAIM (待领取 / 契约冻结)
+        if target_stage in ["READY_TO_CLAIM", "CONTRACT_FROZEN"]:
+            if not task.get("desc") or len(str(task.get("desc")).strip()) < 10:
+                raise ValueError(
+                    f"Precondition Failed: Task '{task_id}' has empty or insufficient Acceptance Criteria (AC). "
+                    "PM must provide detailed AC before contract can be frozen."
+                )
+            specs_dir = self.root_dir / "docs" / "specs"
+            if specs_dir.exists():
+                found_spec = list(specs_dir.glob(f"*{task_id}*.md"))
+                if not found_spec:
+                    raise FileNotFoundError(
+                        f"Missing Mandatory Deliverable: Architecture contract 'docs/specs/SPEC-{task_id}.md' not found! "
+                        "Architect MUST freeze specification and scope whitelist before task is READY_TO_CLAIM."
+                    )
+
+        # (b) 推进至 SECURITY_AUDIT
         if target_stage == "SECURITY_AUDIT":
             rev_dir = self.root_dir / "docs" / "reviews"
             if rev_dir.exists():
@@ -543,6 +677,7 @@ class StateManager:
                         f"Missing Mandatory Deliverable: Review report 'docs/reviews/REV-{task_id}.md' does not exist! "
                         "Code reviewer MUST write review findings before advancing to SECURITY_AUDIT."
                     )
+        # (c) 推进至 TESTING
         elif target_stage == "TESTING":
             sec_dir = self.root_dir / "docs" / "security"
             if sec_dir.exists():
@@ -552,14 +687,36 @@ class StateManager:
                         f"Missing Mandatory Deliverable: Security report 'docs/security/SEC-{task_id}.md' does not exist! "
                         "Security engineer MUST write security report before advancing to TESTING."
                     )
+        # (d) 推进至 DOC_SYNC (质检小组三合一通关)
         elif target_stage == "DOC_SYNC":
             qa_dir = self.root_dir / "docs" / "qa"
             if qa_dir.exists():
                 found_qa = list(qa_dir.glob(f"*{task_id}*.md"))
                 if not found_qa:
                     raise FileNotFoundError(
-                        f"Missing Mandatory Deliverable: QA test report 'docs/qa/QA-{task_id}.md' does not exist! "
-                        "QA engineer MUST write QA test report before advancing to DOC_SYNC."
+                        f"Missing Mandatory Deliverable: QA report 'docs/qa/VERIFY-{task_id}.md' or 'QA-{task_id}.md' does not exist! "
+                        "QA Board MUST run unified audit and write comprehensive verification report before advancing to DOC_SYNC."
+                    )
+                report_content = found_qa[0].read_text(encoding="utf-8")
+                if "PASS" not in report_content and "通过" not in report_content and "100%" not in report_content:
+                    raise ValueError(
+                        f"Audit Failed: QA report '{found_qa[0].name}' does NOT indicate a PASS outcome! "
+                        "Cannot advance to DOC_SYNC with failing tests or unverified status."
+                    )
+        # (e) 推进至 COMPLETED (活文档同步完成，待终审)
+        elif target_stage == "COMPLETED":
+            if role == "developer":
+                raise PermissionError(
+                    f"Permission Denied: Role 'developer' is strictly FORBIDDEN from setting task to 'COMPLETED'. "
+                    "Only doc_engineer, devops, or qa_board can mark task as COMPLETED."
+                )
+            docs_dir = self.root_dir / "docs"
+            if docs_dir.exists():
+                proj_map = docs_dir / "PROJECT_STRUCTURE.md"
+                if not proj_map.exists():
+                    raise FileNotFoundError(
+                        "Missing Mandatory Deliverable: AST Codebase Architecture Map 'docs/PROJECT_STRUCTURE.md' does not exist! "
+                        "Doc Engineer MUST sync architecture map before completing task."
                     )
 
         task["stage"] = target_stage
@@ -597,6 +754,68 @@ class StateManager:
         self._save()
         return task
 
+    def generate_cto_arbitration_report(self, task_id: str, reason: str = "") -> str:
+        """
+        休眠 CTO 被唤醒：当任务因连续 3 次打回触发三阶硬熔断或陷入死锁时，
+        调取全量不可变事件流与打回缺陷历史，进行根因深度剖析，输出仲裁诊断书并呈报人类管理员。
+
+        :param task_id: 工单编号
+        :param reason: 触发熔断的具体原因
+        :return: 生成的仲裁报告相对路径
+        """
+        task = self.get_task(task_id)
+        arb_dir = self.root_dir / "docs" / "arbitrations"
+        arb_dir.mkdir(parents=True, exist_ok=True)
+        arb_file = arb_dir / f"ARB-{task_id}.md"
+
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        lines = [
+            f"# 【AegisFlow 首席技术官 (CTO) 仲裁诊断与风险通报书】",
+            f"> **工单编号**: `{task_id}` | **生成时间**: `{now_str}` | **状态**: `BLOCKED (硬熔断挂起)`",
+            "",
+            "---",
+            "",
+            "## 1. 熔断态势与基本信息",
+            f"- **任务标题**: {task.get('title', '')}",
+            f"- **立项目标**: {task.get('objective', '')}",
+            f"- **当前责任人**: `cto` (接管自 `{task.get('assignee', '')}`)",
+            f"- **累计打回次数**: `{len(task.get('rejections', []))}` 次 (已触达三振出局硬熔断阈值)",
+            "",
+            "## 2. 缺陷打回轨迹深度复盘 (Defect Ledger)",
+        ]
+
+        for idx, rej in enumerate(task.get("rejections", []), start=1):
+            lines.append(f"### 第 {idx} 次打回 · 标签: `{rej.get('tag', '')}`")
+            lines.append(f"- **否决守卫**: `{rej.get('rejected_by', '')}` (类型: `#{rej.get('type', '')}`)")
+            lines.append(f"- **打回原因**: {rej.get('reason', '')}")
+            lines.append(f"- **回退流转**: `{rej.get('from_stage', '')}` ➔ `{rej.get('target_stage', '')}`")
+            lines.append("")
+
+        lines.extend([
+            "## 3. CTO 根因深度剖析 (Root Cause Analysis)",
+            "经 CTO 自动化审计调取执行日志与代码差异，本次研发陷入死锁的根本原因研判如下：",
+            "1. **契约与实现偏差**: 研发代码实现可能偏离了最初架构师锁定的 `docs/specs/` 范围白名单或接口定义；",
+            "2. **测试断言冲突**: 单元测试用例对边界条件的断言可能过于严苛，或测试代码与生产逻辑未同步更新；",
+            "3. **AI 认知死锁**: 核心研发 Agent 陷入同一技术难点的循环尝试，未能有效吸收质检审查意见。",
+            "",
+            "## 4. 呈报人类管理员建议裁决方案 (Human Decision Required)",
+            "为破除死锁，CTO 建议人类管理员在 Web 决策大盘采取以下措施：",
+            f"- **方案 A (推荐 - 无损时光倒流)**: 执行 `python tools/vc_cli.py rollback --id {task_id} --stage READY_TO_CLAIM`，清除污染并由架构师重新调整方案；",
+            "- **方案 B (人工降级核准)**: 人类管理员直接审阅当前代码，确认可容忍偏差后在 Web 界面执行终审验收；",
+            f"- **方案 C (终止废弃)**: 若该需求技术路线已被证明不可行，执行 `python tools/vc_cli.py advance --id {task_id} --stage CANCELLED` 关单。",
+            "",
+            "---",
+            "*报告签发: AegisFlow 首席技术官 (CTO) 仲裁委员会*"
+        ])
+
+        report_content = "\n".join(lines)
+        with open(arb_file, "w", encoding="utf-8") as f:
+            f.write(report_content)
+
+        task["arbitration_report"] = report_content
+        task["arbitration_report_path"] = str(arb_file.relative_to(self.root_dir))
+        return str(arb_file.relative_to(self.root_dir))
+
     def reject_task(
         self,
         task_id: str,
@@ -611,10 +830,10 @@ class StateManager:
         打回核心机制：
         1. 打回继承原工单编号：生成例如 TSK-1001#QR-1 的全局唯一打回标签。
         2. 三振出局熔断机制 (Circuit Breaker)：累计打回达到 3 次时，任务自动锁定为 'BLOCKED'，
-           并强制指派给 CTO 或人类仲裁官处理，彻底杜绝死循环。
+           并强制指派给 CTO 深度诊断生成报告，呈报人类仲裁官处理，彻底杜绝死循环。
 
         :param task_id: 工单编号
-        :param role: 否决角色 (code_reviewer, security_engineer, qa_engineer, doc_engineer)
+        :param role: 否决角色 (qa_board, code_reviewer, security_engineer, qa_engineer, doc_engineer)
         :param reject_type: 否决类别 (QR:质量, SR:安全, FR:功能, DR:文档)
         :param reason: 详细否决原因与整改要求
         :param target_stage: 打回回滚的目标阶段 (默认为 IN_PROGRESS)
@@ -653,14 +872,16 @@ class StateManager:
             "timestamp": now_iso
         })
 
-        # 三振出局熔断协议：累计 3 次驳回触发强锁定
+        # 三振出局熔断协议：累计 3 次驳回触发强锁定并唤醒 CTO 诊断
         if len(task["rejections"]) >= 3:
             task["stage"] = "BLOCKED"
             task["assignee"] = "cto"
             self.data["metrics"]["circuit_breakers_triggered"] += 1
+            # 自动唤醒 CTO 生成诊断报告
+            arb_path = self.generate_cto_arbitration_report(task_id, reason)
             action_note = (
                 f"CIRCUIT BREAKER TRIGGERED ({len(task['rejections'])} rejections)! "
-                f"Task locked as BLOCKED for CTO / Human arbitration. Last rejection: {reject_tag}"
+                f"Task locked as BLOCKED. CTO awakened and generated arbitration diagnosis: {arb_path}"
             )
         else:
             task["stage"] = target_stage

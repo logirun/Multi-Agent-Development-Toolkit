@@ -68,10 +68,19 @@ def main():
     create_p.add_argument("--assignee", default="pm", choices=ROLES, help="初始负责人角色")
     create_p.add_argument("--hours", type=float, default=4.0, help="预估工时 (SRP原则强制 <= 8.0h)")
 
-    # 4. start: 领单开工
-    start_p = subparsers.add_parser("start", help="记录开工时间戳并进入 IN_PROGRESS 研发状态")
+    # 4. start / claim: 领单开工
+    start_p = subparsers.add_parser("start", help="认领工单并进入 IN_PROGRESS 研发状态")
     start_p.add_argument("--id", required=True, help="工单编号")
     start_p.add_argument("--role", default="developer", choices=ROLES, help="领单执行角色")
+
+    claim_p = subparsers.add_parser("claim", help="认领就绪工单并锁定责任人进入 IN_PROGRESS (等价于 start)")
+    claim_p.add_argument("--id", required=True, help="工单编号")
+    claim_p.add_argument("--role", default="developer", choices=ROLES, help="领单执行角色")
+
+    surrender_p = subparsers.add_parser("surrender", help="主动退还进行中的工单回待领池 (READY_TO_CLAIM)")
+    surrender_p.add_argument("--id", required=True, help="工单编号")
+    surrender_p.add_argument("--role", default="developer", choices=ROLES, help="退单角色 (必须是当前持单人)")
+    surrender_p.add_argument("--reason", required=True, help="退单原因与技术阻碍说明")
 
     # 5. advance: 推进阶段
     adv_p = subparsers.add_parser("advance", help="推进工单至目标生命周期阶段")
@@ -101,6 +110,17 @@ def main():
     ], help="门禁类型标识")
     gate_p.add_argument("--file", default=None, help="门禁关联校验的目标文件路径或测试执行命令")
     gate_p.add_argument("--commit-msg", default=None, help="用于 Gate 2 校验的 Git Commit 信息")
+
+    # 7b. audit: 质检审查小组三合一流水线 (规范 + 安全 + 单测)
+    audit_p = subparsers.add_parser("audit", help="质检审查小组 (qa_board) 执行三合一递进质检流水线")
+    audit_p.add_argument("--id", required=True, help="工单编号")
+    audit_p.add_argument("--commit-msg", default=None, help="用于工序1校验的 Git 提交信息")
+    audit_p.add_argument("--target", default="src", help="工序2扫描源码目录 (默认 src)")
+    audit_p.add_argument("--test-cmd", default="python -m unittest", help="工序3自动化测试命令")
+
+    # 7c. arbitrate: 唤醒休眠 CTO 深度剖析熔断死锁工单
+    arb_p = subparsers.add_parser("arbitrate", help="唤醒休眠 CTO 深度剖析熔断死锁工单并输出诊断报告")
+    arb_p.add_argument("--id", required=True, help="工单编号")
 
     # 8. lint: 快速语法快筛 (SWE-agent 理念)
     lint_p = subparsers.add_parser("lint", help="SWE-agent 风格快速 AST 语法与括号解析快筛")
@@ -183,12 +203,24 @@ def main():
             print(f"❌ 创建工单失败: {e}", file=sys.stderr)
             sys.exit(1)
 
-    elif args.command == "start":
+    elif args.command in ["start", "claim"]:
         try:
             task = sm.start_task(args.id, args.role)
-            print(f"🚀 [开工就绪] Work started on {task['id']} by {args.role} at {task['started_at']}")
+            print(f"🚀 [领单开工成功] [CLAIM PASS] Work started on {task['id']} (已由 {args.role} 认领锁定)！")
+            print(f"   开工时间: {task['started_at']}")
+            print(f"   当前阶段: [{task['stage']}] (WIP 并发限制已生效)")
         except Exception as e:
-            print(f"❌ 启动工单失败: {e}", file=sys.stderr)
+            print(f"❌ 领单操作被物理门禁拦截: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    elif args.command == "surrender":
+        try:
+            task = sm.surrender_task(args.id, args.role, args.reason)
+            print(f"🔄 [主动退单成功] [SURRENDER PASS] Task {task['id']} 已退回待领池 [READY_TO_CLAIM]！")
+            print(f"   退单人:   {args.role}")
+            print(f"   退单原因: {args.reason}")
+        except Exception as e:
+            print(f"❌ 退单操作失败: {e}", file=sys.stderr)
             sys.exit(1)
 
     elif args.command == "advance":
@@ -249,6 +281,53 @@ def main():
             receipt = gk.issue_receipt(args.id, args.gate, False, details)
             print(f"❌ [门禁核验未通过] [GATE FAILED] {args.gate}: {msg}")
             print(f"   失败审计记录已归档: {receipt}")
+            sys.exit(1)
+
+    elif args.command == "audit":
+        passed, msg, meta = gk.run_unified_qa_audit(
+            args.id,
+            commit_msg=args.commit_msg,
+            target_dir=args.target,
+            test_command=args.test_cmd
+        )
+        if passed:
+            try:
+                sm.advance_stage(
+                    args.id,
+                    "DOC_SYNC",
+                    "qa_board",
+                    note="QA Board 统一三合一质检全通",
+                    receipt_path=meta.get("receipt_file")
+                )
+                print(f"✅ [质检小组三审全通] [AUDIT PASS] Task {args.id} 规范、安全、自动化单测全部绿灯！")
+                print(f"   📑 综合质检报告: {meta.get('report_file')}")
+                print(f"   📜 密码学收据:   {meta.get('receipt_file')}")
+                print(f"   ➡️ 已成功将工单移交活文档工程师 (阶段: DOC_SYNC)。")
+            except Exception as e:
+                print(f"❌ 质检通过但阶段流转失败: {e}", file=sys.stderr)
+                sys.exit(1)
+        else:
+            veto_type = meta.get("veto_type", "QR")
+            print(f"🚫 [质检小组一票否决] [AUDIT VETO #{veto_type}] {msg}", file=sys.stderr)
+            try:
+                task = sm.reject_task(args.id, "qa_board", veto_type, msg, target_stage="REVISE")
+                print(f"   工单已自动变更为 REVISE 整改状态 (打回计数: {len(task['rejections'])}/3 次)。")
+                if task["stage"] == "BLOCKED":
+                    print(f"🚨 [三振出局硬熔断] 工单累计打回达到 3 次，已锁定为 BLOCKED 状态，休眠 CTO 已唤醒并生成诊断！")
+            except Exception as e:
+                print(f"   打回状态记录失败: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    elif args.command == "arbitrate":
+        try:
+            report_path = sm.generate_cto_arbitration_report(args.id)
+            print(f"⚖️ [CTO 熔断仲裁诊断完成] [ARBITRATION PASS]")
+            print(f"   诊断报告已生成: {report_path}")
+            task = sm.get_task(args.id)
+            if task.get("arbitration_report"):
+                print("\n" + task["arbitration_report"])
+        except Exception as e:
+            print(f"❌ CTO 仲裁诊断失败: {e}", file=sys.stderr)
             sys.exit(1)
 
 
