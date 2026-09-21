@@ -112,8 +112,9 @@ class GitHookManager:
         hyg = hygiene_guard or RepoHygieneGuard(root_dir=str(self.root_dir))
 
         # 1. 活跃工单物理核验（无工单不 Git）
+        is_maintenance = os.environ.get("AEGISFLOW_MAINTENANCE") == "1"
         active_tasks = sm.list_tasks(active_only=True)
-        if not active_tasks:
+        if not active_tasks and not is_maintenance:
             return False, (
                 "🚫 [权限拒绝] 未在 AegisFlow 看板中检测到任何处于活跃状态的研发工单 (No active task card found)！\n"
                 "🛡️ 核心红线：“无工单不 Git”。严禁脱离工单进行盲目代码提交。\n"

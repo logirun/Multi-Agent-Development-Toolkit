@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .coverage
+
+# AegisFlow 运行时事件流与环境自检画像 (防止本地运行日志泄露入 Git)
+.agents/event_stream.jsonl
+.agents/project_profile.json

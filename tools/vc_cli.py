@@ -165,6 +165,9 @@ def main():
     hb_p = subparsers.add_parser("heartbeat", help="工坊运行健康体检、停滞任务预警与熔断风险排查")
     hb_p.add_argument("--stale-hours", type=float, default=8.0, help="判定停滞任务的超期工时阈值 (默认 8.0h)")
 
+    # 18. reset: 清空看板与测试数据恢复纯净初始状态
+    reset_p = subparsers.add_parser("reset", help="重置看板数据库、收据与日志，恢复开源纯净初始状态")
+    reset_p.add_argument("--confirm", action="store_true", help="确认重置全部工单数据与运行时收据")
 
     args = parser.parse_args()
 
@@ -448,6 +451,37 @@ def main():
         hb = StudioHeartbeat(stale_threshold_hours=args.stale_hours)
         hb.print_heartbeat_report()
 
+    elif args.command == "reset":
+        if not args.confirm:
+            print("⚠️ 请附带 --confirm 参数以确认重置全部看板工单与运行时收据 (例: python tools/vc_cli.py reset --confirm)。")
+            sys.exit(1)
+        sm.data = {
+            "version": "3.0.0",
+            "framework": "AegisFlow",
+            "created_at": sm.data.get("created_at"),
+            "updated_at": sm.data.get("updated_at"),
+            "tasks": {},
+            "checkpoints": {},
+            "metrics": {
+                "total_created": 0,
+                "total_accepted": 0,
+                "total_rejections": 0,
+                "circuit_breakers_triggered": 0
+            }
+        }
+        sm._save()
+        if sm.event_stream_path.exists():
+            with open(sm.event_stream_path, "w", encoding="utf-8") as f:
+                f.write("")
+        receipts_dir = sm.root_dir / ".agents" / "receipts"
+        if receipts_dir.exists():
+            for r in receipts_dir.glob("REC-*.json"):
+                try:
+                    r.unlink()
+                except Exception:
+                    pass
+            (receipts_dir / ".gitkeep").touch()
+        print("✨ [纯净重置成功] AegisFlow 看板、密码学收据与事件流已彻底恢复开源纯净状态 (0 工单)。")
 
     else:
         parser.print_help()

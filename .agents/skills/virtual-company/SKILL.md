@@ -162,24 +162,24 @@ python tools/vc_cli.py web
 
 AegisFlow 建立了层次分明、高度内聚且 100% 原创的工程资产矩阵：
 
-- **核心治理配置**: [`core_config.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/core_config.yaml)（风控工时、熔断阈值、L0-L3 网关与六重门禁准则）
+- **核心治理配置**: [`core_config.yaml`](core_config.yaml)（风控工时、熔断阈值、L0-L3 网关与六重门禁准则）
 - **门禁守卫清单 (`manifests/`)**:
-  - [`01-architect_gate.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/manifests/01-architect_gate.yaml): G1 契约锁定与顶层解耦守卫
-  - [`02-syntax_reviewer.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/manifests/02-syntax_reviewer.yaml): G2 静态语法快筛与提交规范守卫
-  - [`03-security_auditor.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/manifests/03-security_auditor.yaml): G3 独立安全审计与机密防护守卫
-  - [`04-qa_validator.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/manifests/04-qa_validator.yaml): G4 自动化回归与测试镜像对齐守卫
-  - [`05-doc_sync_guard.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/manifests/05-doc_sync_guard.yaml): G5 架构地图与活文档同步守卫
-  - [`06-pipeline_orchestrator.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/manifests/06-pipeline_orchestrator.yaml): 流水线编排与 WBS 拆解调度器
-  - [`07-arbitration_court.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/manifests/07-arbitration_court.yaml): 三阶硬熔断仲裁与时空快照法庭
+  - [`01-architect_gate.yaml`](manifests/01-architect_gate.yaml): G1 契约锁定与顶层解耦守卫
+  - [`02-syntax_reviewer.yaml`](manifests/02-syntax_reviewer.yaml): G2 静态语法快筛与提交规范守卫
+  - [`03-security_auditor.yaml`](manifests/03-security_auditor.yaml): G3 独立安全审计与机密防护守卫
+  - [`04-qa_validator.yaml`](manifests/04-qa_validator.yaml): G4 自动化回归与测试镜像对齐守卫
+  - [`05-doc_sync_guard.yaml`](manifests/05-doc_sync_guard.yaml): G5 架构地图与活文档同步守卫
+  - [`06-pipeline_orchestrator.yaml`](manifests/06-pipeline_orchestrator.yaml): 流水线编排与 WBS 拆解调度器
+  - [`07-arbitration_court.yaml`](manifests/07-arbitration_court.yaml): 三阶硬熔断仲裁与时空快照法庭
 - **工程治理法典 (`doctrines/`)**:
-  - [`code_governance_doctrine.md`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/doctrines/code_governance_doctrine.md): 确定性代码合规与仓储治理六大律
-  - [`human_sovereignty_protocol.md`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/doctrines/human_sovereignty_protocol.md): 人类终审主权与人机协同边界公约
+  - [`code_governance_doctrine.md`](doctrines/code_governance_doctrine.md): 确定性代码合规与仓储治理六大律
+  - [`human_sovereignty_protocol.md`](doctrines/human_sovereignty_protocol.md): 人类终审主权与人机协同边界公约
 - **工程规范参考 (`standards/`)**:
-  - [`conventional_commits_zh.md`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/standards/conventional_commits_zh.md): 中文 Conventional Commits 提交格式规范
-  - [`ast_repomap_standard.md`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/standards/ast_repomap_standard.md): Aider 风格 AST 代码架构地图标准
+  - [`conventional_commits_zh.md`](standards/conventional_commits_zh.md): 中文 Conventional Commits 提交格式规范
+  - [`ast_repomap_standard.md`](standards/ast_repomap_standard.md): Aider 风格 AST 代码架构地图标准
 - **契约与收据模式 (`schemas/`)**:
-  - [`contract_manifest.schema.yaml`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/schemas/contract_manifest.schema.yaml): G1 任务契约声明模式（范围白名单约束）
-  - [`cryptographic_receipt.schema.json`](file:///d:/Codex/Projects/%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/.agents/skills/virtual-company/schemas/cryptographic_receipt.schema.json): G1-G6 密码学收据不可篡改标准 JSON Schema
+  - [`contract_manifest.schema.yaml`](schemas/contract_manifest.schema.yaml): G1 任务契约声明模式（范围白名单约束）
+  - [`cryptographic_receipt.schema.json`](schemas/cryptographic_receipt.schema.json): G1-G6 密码学收据不可篡改标准 JSON Schema
 
 ---
 
