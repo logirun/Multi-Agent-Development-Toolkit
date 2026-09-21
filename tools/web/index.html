@@ -14,6 +14,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>AegisFlow · 数字化软件工坊全维管控大盘</title>
 <style>
   :root {
@@ -44,32 +47,55 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
     background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
     line-height: 1.5;
-    padding: 20px 24px;
-    min-height: 100vh;
-    overflow-x: hidden;
   }
 
-  /* 自定义滚动条 */
-  ::-webkit-scrollbar { width: 7px; height: 7px; }
-  ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
-  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+  body {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 20px 42px;
+    height: 100vh;
+    box-sizing: border-box;
+  }
+
+  /* 自定义全局高对比度滚动条 */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.35); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.12); }
+  ::-webkit-scrollbar-thumb:hover { background: #818cf8; }
+
+  /* 视图主渲染容器：在视口内充满剩余高度，水平滚动大盘 */
+  #mainViewContainer {
+    flex: 1 1 0;
+    min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+  }
 
   /* 顶部导航与品牌栏 */
   header {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 18px;
-    padding-bottom: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 14px;
   }
   .brand { display: flex; align-items: center; gap: 14px; }
   .brand-badge {
@@ -167,10 +193,11 @@
 
   /* 导航多视图切换 Tabs */
   .nav-toolbar {
+    flex: 0 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
     gap: 12px;
   }
@@ -206,14 +233,15 @@
 
   /* 筛选与搜索控制条 */
   .filter-bar {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
-    margin-bottom: 22px;
+    margin-bottom: 12px;
     background: var(--surface);
     border: 1px solid var(--border);
-    padding: 10px 16px;
+    padding: 8px 14px;
     border-radius: 12px;
   }
   .search-box { position: relative; flex: 1; min-width: 240px; }
@@ -352,42 +380,45 @@
     height: 15px;
   }
 
-  /* 泳道看板通用网格布局 */
-  .lanes-container {
-    display: grid;
+  /* 泳道看板通用弹性布局：充满视图高度，支持横向拖动大盘 */
+  .lanes-container, .stage-board-wrapper {
+    display: flex !important;
     gap: 16px;
-    align-items: flex-start;
-  }
-  .lanes-5 { grid-template-columns: repeat(5, minmax(240px, 1fr)); }
-  .lanes-6 { grid-template-columns: repeat(6, minmax(220px, 1fr)); }
-  .lanes-4 { grid-template-columns: repeat(4, minmax(260px, 1fr)); }
-  .lanes-7 { grid-template-columns: repeat(7, minmax(200px, 1fr)); }
-
-  @media (max-width: 1440px) {
-    .lanes-container { overflow-x: auto; padding-bottom: 12px; }
+    height: 100% !important;
+    min-height: 0 !important;
+    align-items: stretch;
+    width: max-content;
+    min-width: 100%;
+    padding-bottom: 6px;
   }
 
-  .lane {
+  /* 泳道基础样式：充满视口，独立滚动 */
+  .lane, .stage-column {
+    flex: 0 0 310px;
+    width: 310px;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 200px);
-    max-height: calc(100vh - 200px);
-    min-height: 480px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
   }
-  .lane-header {
-    padding: 12px 14px;
+
+  .lane-header, .stage-col-header {
+    height: 44px;
+    flex-shrink: 0;
+    padding: 8px 14px;
     border-bottom: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.025);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-shrink: 0;
   }
-  .lane-title {
+  .lane-title, .stage-col-title {
     font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 0.3px;
@@ -395,33 +426,63 @@
     align-items: center;
     gap: 6px;
   }
-  .lane-count {
-    background: rgba(255, 255, 255, 0.08);
+  .lane-count, .stage-col-count {
+    background: rgba(99, 102, 241, 0.18);
+    border: 1px solid rgba(99, 102, 241, 0.35);
     border-radius: 999px;
-    padding: 2px 8px;
-    font-size: 11px;
+    padding: 2px 9px;
+    font-size: 11.5px;
     font-family: var(--mono);
-    color: var(--text-muted);
+    color: var(--cyan);
+    font-weight: 700;
   }
-  .cards-list {
-    padding: 12px;
+
+  /* 卡片列表：标准的独立纵向滚动容器，永远显示滚动条，鼠标滚轮100%原生顺畅 */
+  .cards-list, .stage-col-body {
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    flex: 1;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+    gap: 8px;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: contain;
   }
-  .cards-list::-webkit-scrollbar {
-    width: 5px;
+  .cards-list::-webkit-scrollbar, .stage-col-body::-webkit-scrollbar {
+    width: 8px;
   }
-  .cards-list::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.25);
+  .cards-list::-webkit-scrollbar-track, .stage-col-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.25);
     border-radius: 4px;
   }
-  .cards-list::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
+  .cards-list::-webkit-scrollbar-thumb, .stage-col-body::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.75);
+    border-radius: 4px;
+  }
+  .cards-list::-webkit-scrollbar-thumb:hover, .stage-col-body::-webkit-scrollbar-thumb:hover {
+    background: #818cf8;
+  }
+
+  .stage-empty-placeholder {
+    padding: 28px 12px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .lane-end-hint {
+    text-align: center;
+    padding: 10px 0 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    border-top: 1px dashed var(--border);
+    margin-top: 4px;
+    flex-shrink: 0;
   }
 
   /* 任务卡片设计 */
@@ -429,11 +490,13 @@
     background: var(--surface-card);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 13px;
+    padding: 10px 12px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
+  }
   }
   .task-card::before {
     content: "";
@@ -458,13 +521,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 6px;
+    margin-bottom: 7px;
   }
+  /* 编号：醒目青色代码徽章，居左上角首要视觉 */
   .card-id {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
-    color: var(--cyan);
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.14);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.4px;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
   .priority-tag {
     font-size: 10px;
@@ -478,12 +550,15 @@
   .med { background: rgba(56, 189, 248, 0.22); color: var(--cyan); }
   .low { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); }
 
+  /* 任务名称：加粗高对比度亮白字体 */
   .card-title {
-    font-size: 13.5px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     margin-bottom: 6px;
-    line-height: 1.4;
-    color: var(--text);
+    line-height: 1.45;
+    color: #f8fafc;
+    letter-spacing: -0.2px;
+    word-break: break-word;
   }
   .card-desc {
     font-size: 11.5px;
@@ -627,16 +702,31 @@
   /* ================================================================ */
   /* 人类管理层核心：居中大气模态弹窗 (960px 宽度，无横向滚动条)      */
   /* ================================================================ */
+  body.modal-open {
+    overflow: hidden !important;
+  }
+  body.modal-open #mainViewContainer,
+  body.modal-open .cards-list,
+  body.modal-open .stage-col-body {
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+  body.modal-open .modal-overlay {
+    pointer-events: auto !important;
+  }
+
   .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(10px);
     z-index: 1000;
     display: none;
     align-items: center;
     justify-content: center;
     padding: 24px;
+    overscroll-behavior: contain;
+    overscroll-behavior-y: contain;
   }
   .modal-overlay.active { display: flex; }
 
@@ -650,16 +740,19 @@
     flex-direction: column;
     max-height: 90vh;
     animation: modalIn 0.22s ease-out;
+    overscroll-behavior: contain;
+    overscroll-behavior-y: contain;
   }
   @keyframes modalIn {
     from { opacity: 0; transform: scale(0.97) translateY(10px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  .modal-lg { width: 960px; max-width: 95vw; }
-  .modal-md { width: 560px; max-width: 92vw; }
+  .modal-lg { width: 960px; max-width: 95vw; height: 90vh; }
+  .modal-md { width: 560px; max-width: 92vw; max-height: 90vh; }
 
   .modal-header {
+    flex: 0 0 auto;
     padding: 18px 24px;
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -688,15 +781,36 @@
   }
 
   .modal-body {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: 100%;
     padding: 22px 26px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     display: flex;
     flex-direction: column;
     gap: 18px;
     word-break: break-word;
+    overscroll-behavior: contain;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
   }
   .modal-body * { min-width: 0; }
+  .modal-body::-webkit-scrollbar {
+    width: 8px;
+  }
+  .modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+  }
+  .modal-body::-webkit-scrollbar-thumb {
+    background: #6366f1;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #818cf8;
+  }
 
   /* 1. 人类管理者态势速报横幅 */
   .human-summary-banner {
@@ -901,6 +1015,22 @@
     max-height: 260px;
     overflow-y: auto;
     padding-right: 4px;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .role-actions-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  .role-actions-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 3px;
+  }
+  .role-actions-list::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.6);
+    border-radius: 3px;
+  }
+  .role-actions-list::-webkit-scrollbar-thumb:hover {
+    background: #818cf8;
   }
   .role-action-card {
     background: rgba(0, 0, 0, 0.3);
@@ -1026,9 +1156,11 @@
     font-size: 11.5px;
     color: var(--cyan);
     overflow-x: auto;
+    overflow-y: auto;
     max-height: 200px;
     white-space: pre-wrap;
     word-break: break-all;
+    overscroll-behavior: contain;
   }
 
   /* 8. 质检打回档案 */
@@ -1053,6 +1185,7 @@
   }
 
   .modal-footer {
+    flex: 0 0 auto;
     padding: 16px 24px;
     border-top: 1px solid var(--border);
     display: flex;
@@ -1061,6 +1194,172 @@
     background: rgba(255, 255, 255, 0.02);
     gap: 12px;
   }
+
+  /* 9. 底部实时事件流跑马灯与终端抽屉 (P1) */
+  .event-ticker-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 34px;
+    background: rgba(10, 13, 20, 0.94);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-highlight);
+    z-index: 900;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    cursor: pointer;
+    font-size: 12px;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .event-ticker-bar:hover {
+    background: rgba(21, 28, 42, 0.98);
+  }
+  .ticker-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+  .ticker-title {
+    font-weight: 700;
+    color: var(--cyan);
+    font-size: 11.5px;
+    letter-spacing: 0.3px;
+  }
+  .ticker-snippet {
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ticker-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .ticker-badge {
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: var(--primary-light);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-family: var(--mono);
+  }
+  .ticker-expand-btn {
+    color: var(--cyan);
+    font-size: 11.5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .terminal-drawer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 380px;
+    max-height: 55vh;
+    background: #090c14;
+    border-top: 2px solid var(--primary);
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85);
+    z-index: 950;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .terminal-drawer.active {
+    transform: translateY(0);
+  }
+  .terminal-header {
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .terminal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .terminal-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .drawer-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .drawer-filter-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .drawer-filter-btn:hover, .drawer-filter-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary-light);
+  }
+  .terminal-body {
+    flex: 1 1 0;
+    min-height: 0;
+    padding: 12px 16px;
+    overflow-y: auto;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    background: #06080e;
+    color: #cbd5e1;
+  }
+  .terminal-body::-webkit-scrollbar { width: 6px; }
+  .terminal-body::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  .terminal-log-line {
+    display: flex;
+    gap: 12px;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    align-items: baseline;
+    font-size: 11.5px;
+  }
+  .terminal-log-line:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .log-time { color: var(--text-dim); flex-shrink: 0; min-width: 60px; }
+  .log-badge {
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .log-badge-CREATE { background: rgba(56, 189, 248, 0.15); color: var(--cyan); }
+  .log-badge-STAGE { background: rgba(99, 102, 241, 0.2); color: var(--primary-light); }
+  .log-badge-REJECT { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+  .log-badge-ROLLBACK { background: rgba(245, 158, 11, 0.2); color: var(--amber); }
+  .log-badge-ACCEPT { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+  .log-actor { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+  .log-task { color: var(--cyan); text-decoration: underline; cursor: pointer; flex-shrink: 0; font-weight: 700; }
+  .log-desc { color: var(--text); word-break: break-all; }
 </style>
 </head>
 <body>
@@ -1090,14 +1389,15 @@
 <!-- 2. 多维度视图导航与控制栏 -->
 <div class="nav-toolbar">
   <div class="view-tabs">
-    <button class="tab-btn active" onclick="switchView('stage', event)">📌 阶段看板</button>
-    <button class="tab-btn" onclick="switchView('status', event)">🏷️ 状态看板</button>
-    <button class="tab-btn" onclick="switchView('role', event)">👥 角色面板</button>
-    <button class="tab-btn" onclick="switchView('risk', event)">⚡ 风险等级</button>
-    <button class="tab-btn" onclick="switchView('table', event)">📑 表格列表</button>
-    <button class="tab-btn" onclick="switchView('health', event)">📊 质量与健康</button>
+    <button class="tab-btn active" data-view="table" onclick="switchView('table', event)">📑 表格列表</button>
+    <button class="tab-btn" data-view="stage" onclick="switchView('stage', event)">📌 阶段看板</button>
+    <button class="tab-btn" data-view="status" onclick="switchView('status', event)">🏷️ 状态看板</button>
+    <button class="tab-btn" data-view="role" onclick="switchView('role', event)">👥 角色面板</button>
+    <button class="tab-btn" data-view="risk" onclick="switchView('risk', event)">⚡ 风险等级</button>
+    <button class="tab-btn" data-view="health" onclick="switchView('health', event)">📊 质量与健康</button>
   </div>
   <div style="display:flex; gap:8px;">
+    <button class="btn btn-secondary btn-sm" id="btnToggleCompact" onclick="toggleCompactMode()" title="切换泳道高度模式：全平铺自适应 / 紧凑内部滚动">🗜️ 紧凑内部滚动</button>
     <button class="btn btn-secondary btn-sm" onclick="fetchBoard(true)">🔄 立即刷新</button>
   </div>
 </div>
@@ -1235,6 +1535,30 @@
           <span style="font-size:11.5px; color:var(--red);">三振硬熔断接管中 · 根因深度剖析</span>
         </div>
         <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.35); border-radius:10px; padding:14px 18px; font-size:12.5px; line-height:1.65; color:var(--text); white-space:pre-wrap; font-family:var(--sans);" id="modalArbitrationContent"></div>
+        <!-- CTO 仲裁处置操作台 (P0) -->
+        <div id="modalArbitrationActions" style="margin-top:12px; background:rgba(0,0,0,0.3); border:1px solid rgba(239,68,68,0.35); border-radius:10px; padding:14px 16px;">
+          <div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:10px;">🛠️ CTO 仲裁决策执行台 (人类管理员特权破除死锁)：</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" style="background:linear-gradient(135deg, #4f46e5, #06b6d4); font-size:12px; padding:8px 14px;" onclick="executeArbitrationAction('rollback')">⚡ 方案 A (推荐)：无损时光倒流重构</button>
+            <button class="btn btn-secondary" style="font-size:12px; padding:8px 14px; border-color:var(--amber); color:var(--amber);" onclick="executeArbitrationAction('split')">🧩 方案 B：拆解为 2 个原子子任务</button>
+            <button class="btn btn-secondary" style="font-size:12px; padding:8px 14px; border-color:var(--red); color:var(--red);" onclick="executeArbitrationAction('cancel')">🛑 方案 C：直接终止废弃需求</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8.8 ⏳ LangGraph 状态快照时光倒流 (Time-Travel Rollback P0) -->
+      <div id="modalTimeTravelSection" style="margin-bottom:12px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.25); border-radius:10px; padding:14px 18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div>
+            <span style="font-size:12.5px; font-weight:700; color:var(--primary-light);">⏳ LangGraph 状态快照时光倒流 (Time-Travel Rollback)</span>
+            <span style="font-size:11.5px; color:var(--text-dim); margin-left:8px;">恢复历史干净检查点，无损抹平错误决策与代码污染</span>
+          </div>
+          <span style="font-size:11px; color:var(--cyan); font-family:var(--mono);" id="modalCheckpointCount">0 个历史快照</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <select id="modalCheckpointSelect" class="form-select" style="flex:1; min-width:240px; font-size:12px; padding:7px 12px;"></select>
+          <button class="btn btn-secondary" style="font-size:12px; padding:7px 16px; border-color:var(--primary-light); color:var(--primary-light);" onclick="executeTimeTravelRollback()">执行时光倒流回滚</button>
+        </div>
       </div>
 
       <!-- 9. 质检打回与历史缺陷档案 -->
@@ -1255,6 +1579,7 @@
         当前状态说明已同步
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
+        <span id="modalVetoActionContainer"></span>
         <span id="modalAcceptActionContainer"></span>
         <button class="btn btn-secondary" onclick="closeTaskModal()">关闭详情</button>
       </div>
@@ -1347,17 +1672,126 @@
   </div>
 </div>
 
+<!-- ================================================================= -->
+<!-- 7. 一票否决制衡打回弹窗 (#QR / #SR / #FR / #DR P0)                  -->
+<!-- ================================================================= -->
+<div class="modal-overlay" id="vetoModalOverlay" onclick="closeVetoModal()">
+  <div class="modal modal-md" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:16px;">🚫</span>
+        <div style="font-size:15px; font-weight:700; color:var(--red);">行使专业一票否决权 (Four-Dimensional Veto)</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeVetoModal()" title="关闭">✕</button>
+    </div>
+    <div class="modal-body" style="gap:14px;">
+      <div style="font-size:12.5px; color:var(--text-muted); line-height:1.6; background:rgba(239,68,68,0.06); padding:10px 14px; border-radius:8px; border:1px solid rgba(239,68,68,0.2);">
+        行使一票否决权将立即阻断该任务流转，生成不可篡改的缺陷打回单（如 <span style="font-family:var(--mono); color:var(--amber); font-weight:700;" id="vetoTaskTagPreview">#SR-1</span>），并将任务状态回退至整改阶段。累计 3 次否决将触发<b>三振出局硬熔断</b>并唤醒休眠 CTO。
+      </div>
+      <div class="form-group">
+        <label class="form-label">否决执行角色 *</label>
+        <select id="vetoRole" class="form-select">
+          <option value="security_engineer">🛡️ security_engineer (独立安全审计员)</option>
+          <option value="code_reviewer">🔍 code_reviewer (代码规范审查员)</option>
+          <option value="qa_engineer">🧪 qa_engineer (质量验证测试员)</option>
+          <option value="doc_engineer">📚 doc_engineer (活文档工程师)</option>
+          <option value="human_admin">👑 human_admin (人类管理员特权否决)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">否决制衡类别 *</label>
+        <select id="vetoType" class="form-select">
+          <option value="SR">#SR · 安全漏洞与机密泄露 (OWASP/密码学/密钥泄露)</option>
+          <option value="QR">#QR · 代码规范与AST快筛 (Conventional Commits/语法断裂)</option>
+          <option value="FR">#FR · 功能缺陷与单测失败 (用例未过/断言不达标)</option>
+          <option value="DR">#DR · 文档不同步 (架构地图与接口变更脱节)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">详细打回原因与整改要求 *</label>
+        <textarea id="vetoReason" class="form-textarea" rows="3" placeholder="清晰指出具体代码缺陷、违规行号或安全漏洞，例如：发现硬编码Token密钥盐值，未走环境变量注入..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeVetoModal()">取消</button>
+      <button class="btn btn-primary" style="background:var(--red); border-color:var(--red);" onclick="submitVeto()">确认签发否决单</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- 8. 实时不可变事件流跑马灯 & 展开式终端抽屉 (P1)                   -->
+<!-- ================================================================= -->
+<div id="eventTickerBar" class="event-ticker-bar" onclick="toggleTerminalDrawer()">
+  <div class="ticker-left">
+    <span class="live-dot" style="background:#06b6d4; box-shadow:0 0 10px #06b6d4;"></span>
+    <span class="ticker-title">📡 实时不可变事件流 (Live Event Stream)</span>
+    <span class="ticker-snippet" id="tickerSnippet">正在拉取工坊智能体最新动态...</span>
+  </div>
+  <div class="ticker-right">
+    <span class="ticker-badge" id="tickerEventCount">0 条事件</span>
+    <span class="ticker-expand-btn">⤢ 展开终端抽屉</span>
+  </div>
+</div>
+
+<div id="terminalDrawer" class="terminal-drawer">
+  <div class="terminal-header">
+    <div class="terminal-title-group">
+      <span style="font-size:16px;">💻</span>
+      <span style="font-weight:700; font-size:14px; color:var(--text);">AegisFlow 智能体协作事件审计终端 (OpenHands Immutable Stream)</span>
+      <span class="ticker-badge" id="drawerEventCount">0 Events</span>
+    </div>
+    <div class="terminal-actions">
+      <div class="drawer-filters">
+        <button class="drawer-filter-btn active" data-filter="ALL" onclick="filterDrawerEvents('ALL')">全部</button>
+        <button class="drawer-filter-btn" data-filter="TASK_CREATED" onclick="filterDrawerEvents('TASK_CREATED')">立项</button>
+        <button class="drawer-filter-btn" data-filter="STAGE_ADVANCED" onclick="filterDrawerEvents('STAGE_ADVANCED')">门禁流转</button>
+        <button class="drawer-filter-btn" data-filter="REJECT" onclick="filterDrawerEvents('REJECT')">制衡否决</button>
+        <button class="drawer-filter-btn" data-filter="TIME_TRAVEL" onclick="filterDrawerEvents('TIME_TRAVEL')">时光倒流</button>
+        <button class="drawer-filter-btn" data-filter="TASK_ACCEPTED" onclick="filterDrawerEvents('TASK_ACCEPTED')">终审归档</button>
+      </div>
+      <button class="btn btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="fetchEvents(true)">🔄 刷新</button>
+      <button class="modal-close-btn" style="width:26px; height:26px; font-size:13px;" onclick="toggleTerminalDrawer()" title="折叠抽屉">✕</button>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminalLogs">
+    <!-- 动态实时渲染事件日志行 -->
+  </div>
+</div>
+
 <script>
 // ================================================================
-// 全局状态管理
+// 全局状态管理与单页路由
 // ================================================================
+const VALID_VIEWS = ["table", "stage", "status", "role", "risk", "health"];
+
+function getRouteView() {
+  const hash = (window.location.hash || "").replace("#", "").trim().toLowerCase();
+  return VALID_VIEWS.includes(hash) ? hash : "table";
+}
+
 let gBoardData = { tasks: {}, metrics: {}, checkpoints: {} };
-let gCurrentView = "stage"; // stage | status | role | risk | table | health
+let gCurrentView = getRouteView(); // 默认基于路由 Hash，缺省为 table (表格列表第一页)
 let gQuickFilter = "all";   // all | active | rejected | blocked | critical
 let gSearchQuery = "";
 let gSortColumn = "id";
 let gSortAsc = true;
 let gSelectedTaskId = null;
+let gEventsData = [];
+let gCurrentDrawerFilter = "ALL";
+
+// 1. 视图切换与单页路由驱动
+function switchView(viewName, ev) {
+  if (!VALID_VIEWS.includes(viewName)) viewName = "table";
+  gCurrentView = viewName;
+  if (window.location.hash !== "#" + viewName) {
+    history.replaceState(null, "", "#" + viewName);
+  }
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.view === viewName);
+  });
+  renderView();
+}
 
 // 11 大标准角色字典
 // 5 常驻骨干 + 2 阶段专家 + 1 仲裁官 + 1 最高主权
@@ -1402,15 +1836,6 @@ const STAGE_MAP = {
   TESTING: { label: "测试验证中", desc: "正在执行自动化单元测试回归" }
 };
 
-// 1. 视图切换
-function switchView(viewName, ev) {
-  gCurrentView = viewName;
-  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-  if (ev && ev.currentTarget) {
-    ev.currentTarget.classList.add("active");
-  }
-  renderView();
-}
 
 // 2. 快捷过滤与搜索
 function setQuickFilter(filterType, el) {
@@ -1486,10 +1911,26 @@ function getFilteredTasks() {
   return list;
 }
 
+let gCompactMode = false;
+function toggleCompactMode() {
+  gCompactMode = !gCompactMode;
+  const btn = document.getElementById("btnToggleCompact");
+  if (btn) {
+    btn.innerHTML = gCompactMode ? "⇳ 恢复全平铺自适应" : "🗜️ 紧凑内部滚动";
+  }
+  renderView();
+}
+
 // 5. 核心渲染分发器
 function renderView() {
   const container = document.getElementById("mainViewContainer");
   const tasks = getFilteredTasks();
+
+  if (gCompactMode) {
+    container.classList.add("lanes-compact");
+  } else {
+    container.classList.remove("lanes-compact");
+  }
 
   if (gCurrentView === "stage") {
     renderStageKanban(container, tasks);
@@ -1506,28 +1947,34 @@ function renderView() {
   }
 }
 
-// 5.1 维度 1: 阶段看板
+// 5.1 维度 1: 阶段看板 (全新完全重写：彻底废弃限高，自适应全量工单无截断平铺)
 function renderStageKanban(container, tasks) {
   const lanes = [
-    { id: "spec", title: "1. 需求与契约 SPEC", filter: t => ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN"].includes(t.stage) },
-    { id: "dev", title: "2. 分支研发中 DEV", filter: t => t.stage === "IN_PROGRESS" },
-    { id: "audit", title: "3. 审查与安全 AUDIT", filter: t => ["CODE_REVIEW", "SECURITY_AUDIT"].includes(t.stage) },
-    { id: "qa", title: "4. 质量测试与文档 QA", filter: t => ["TESTING", "DOC_SYNC"].includes(t.stage) },
-    { id: "done", title: "5. 终审与归档 ACCEPT", filter: t => ["COMPLETED", "ACCEPTED", "BLOCKED"].includes(t.stage) }
+    { id: "spec", title: "1. 需求与契约 SPEC", icon: "📋", filter: t => ["BACKLOG", "SPECIFICATION", "CONTRACT_FROZEN"].includes(t.stage) },
+    { id: "dev", title: "2. 分支研发中 DEV", icon: "💻", filter: t => t.stage === "IN_PROGRESS" },
+    { id: "audit", title: "3. 审查与安全 AUDIT", icon: "🔍", filter: t => ["CODE_REVIEW", "SECURITY_AUDIT"].includes(t.stage) },
+    { id: "qa", title: "4. 质量测试与文档 QA", icon: "🧪", filter: t => ["TESTING", "DOC_SYNC"].includes(t.stage) },
+    { id: "done", title: "5. 终审与归档 ACCEPT", icon: "✅", filter: t => ["COMPLETED", "ACCEPTED", "BLOCKED"].includes(t.stage) }
   ];
 
   container.innerHTML = `
-    <div class="lanes-container lanes-5">
+    <div class="stage-board-wrapper">
       ${lanes.map(l => {
         const laneTasks = tasks.filter(l.filter);
         return `
-          <div class="lane">
-            <div class="lane-header">
-              <span class="lane-title">${l.title}</span>
-              <span class="lane-count">${laneTasks.length}</span>
+          <div class="stage-column" data-lane="${l.id}">
+            <div class="stage-col-header">
+              <span class="stage-col-title">
+                <span>${l.icon}</span>
+                <span>${l.title}</span>
+              </span>
+              <span class="stage-col-count">${laneTasks.length} 项</span>
             </div>
-            <div class="cards-list">
-              ${laneTasks.map(t => renderTaskCardHtml(t)).join("")}
+            <div class="stage-col-body">
+              ${laneTasks.length > 0
+                ? laneTasks.map(t => renderTaskCardHtml(t)).join("") + `<div class="lane-end-hint">✦ 共 ${laneTasks.length} 项工单已全部加载 ✦</div>`
+                : `<div class="stage-empty-placeholder">暂无工单</div>`
+              }
             </div>
           </div>
         `;
@@ -1551,17 +1998,20 @@ function renderStatusKanban(container, tasks) {
   ];
 
   container.innerHTML = `
-    <div class="lanes-container" style="display:grid; grid-template-columns: repeat(${lanes.length}, minmax(280px, 1fr)); gap: 14px; overflow-x: auto; padding-bottom: 8px;">
+    <div class="lanes-container">
       ${lanes.map(l => {
         const laneTasks = tasks.filter(l.filter);
         return `
-          <div class="lane" style="min-width: 280px;">
+          <div class="lane">
             <div class="lane-header">
               <span class="lane-title">${l.title}</span>
-              <span class="lane-count">${laneTasks.length}</span>
+              <span class="lane-count">${laneTasks.length} 项</span>
             </div>
             <div class="cards-list">
-              ${laneTasks.map(t => renderTaskCardHtml(t)).join("")}
+              ${laneTasks.length > 0 
+                ? laneTasks.map(t => renderTaskCardHtml(t)).join("") + `<div class="lane-end-hint">✦ 共 ${laneTasks.length} 项工单已全部加载 ✦</div>`
+                : `<div class="stage-empty-placeholder">暂无工单</div>`
+              }
             </div>
           </div>
         `;
@@ -1585,17 +2035,20 @@ function renderRolePanel(container, tasks) {
   ];
 
   container.innerHTML = `
-    <div class="lanes-container" style="display:grid; grid-template-columns: repeat(${roleGroups.length}, minmax(280px, 1fr)); gap: 14px; overflow-x: auto; padding-bottom: 8px;">
+    <div class="lanes-container">
       ${roleGroups.map(rg => {
         const laneTasks = tasks.filter(rg.filter);
         return `
-          <div class="lane" style="min-width: 280px;">
+          <div class="lane">
             <div class="lane-header">
               <span class="lane-title">${rg.title}</span>
-              <span class="lane-count">${laneTasks.length}</span>
+              <span class="lane-count">${laneTasks.length} 项</span>
             </div>
             <div class="cards-list">
-              ${laneTasks.map(t => renderTaskCardHtml(t)).join("")}
+              ${laneTasks.length > 0
+                ? laneTasks.map(t => renderTaskCardHtml(t)).join("") + `<div class="lane-end-hint">✦ 共 ${laneTasks.length} 项工单已全部加载 ✦</div>`
+                : `<div class="stage-empty-placeholder">暂无工单</div>`
+              }
             </div>
           </div>
         `;
@@ -1614,17 +2067,20 @@ function renderRiskPanel(container, tasks) {
   ];
 
   container.innerHTML = `
-    <div class="lanes-container lanes-4">
+    <div class="lanes-container">
       ${riskGroups.map(rg => {
         const laneTasks = tasks.filter(rg.filter);
         return `
           <div class="lane">
             <div class="lane-header">
               <span class="lane-title">${rg.title}</span>
-              <span class="lane-count">${laneTasks.length}</span>
+              <span class="lane-count">${laneTasks.length} 项</span>
             </div>
             <div class="cards-list">
-              ${laneTasks.map(t => renderTaskCardHtml(t)).join("")}
+              ${laneTasks.length > 0
+                ? laneTasks.map(t => renderTaskCardHtml(t)).join("") + `<div class="lane-end-hint">✦ 共 ${laneTasks.length} 项工单已全部加载 ✦</div>`
+                : `<div class="stage-empty-placeholder">暂无工单</div>`
+              }
             </div>
           </div>
         `;
@@ -1829,14 +2285,17 @@ function renderTaskCardHtml(t) {
     rejHtml = `<span class="badge-rej">${rejs.length}/3 (#${tag})</span>`;
   }
 
+  const desc = (t.desc || t.description || "");
+  const showDesc = desc && desc !== t.title && desc !== t.objective;
+
   return `
     <div class="task-card ${pClass}" onclick="onSelectTask('${t.id}')">
       <div class="card-top">
         <span class="card-id">${t.id}</span>
         ${renderPriority(t.priority)}
       </div>
-      <div class="card-title">${t.title}</div>
-      <div class="card-desc">${t.objective || t.desc || t.description || "无详细描述"}</div>
+      <div class="card-title">${t.title || t.objective || '（未命名任务）'}</div>
+      ${showDesc ? `<div class="card-desc">${desc}</div>` : ''}
       <div class="gates-matrix">
         <span class="gate-pip ${gates.gate_1_contract ? 'passed' : ''}" title="G1 契约锁定"></span>
         <span class="gate-pip ${gates.gate_2_review ? 'passed' : ''}" title="G2 语法快筛"></span>
@@ -1847,7 +2306,7 @@ function renderTaskCardHtml(t) {
         <span class="gate-pip-label">G1-G6</span>
       </div>
       <div class="card-footer">
-        <span class="badge-assignee">👤 ${t.assignee || "未指定"}</span>
+        <span class="badge-assignee">👤 ${t.assignee || '未指定'}</span>
         ${rejHtml}
       </div>
     </div>
@@ -1863,17 +2322,32 @@ function renderPriority(p) {
 }
 
 // 7. 工单详情模态弹窗交互
+function syncModalState() {
+  const activeModals = document.querySelectorAll(".modal-overlay.active");
+  if (activeModals.length === 0) {
+    document.body.classList.remove("modal-open");
+  } else {
+    document.body.classList.add("modal-open");
+  }
+}
+
 function onSelectTask(taskId) {
   const task = (gBoardData.tasks || {})[taskId];
   if (!task) return;
   gSelectedTaskId = taskId;
   showTaskDetails(task);
   document.getElementById("taskModalOverlay").classList.add("active");
+  syncModalState();
+  const modalBody = document.querySelector("#taskDetailModal .modal-body");
+  if (modalBody) {
+    modalBody.scrollTop = 0;
+  }
 }
 
 function closeTaskModal() {
   document.getElementById("taskModalOverlay").classList.remove("active");
   document.getElementById("receiptPreviewSection").style.display = "none";
+  syncModalState();
 }
 
 // 8. 详情弹窗数据填充核心函数 (结构化业务目标、交付结论、履职矩阵与质检报告)
@@ -2204,18 +2678,50 @@ function showTaskDetails(t) {
   // 6.5 ⚖️ 首席技术官 (CTO) 仲裁报告展示 (BLOCKED 专属)
   const arbSection = document.getElementById("modalArbitrationSection");
   const arbContent = document.getElementById("modalArbitrationContent");
-  if (t.stage === "BLOCKED" && (t.arbitration_report || (t.rejections && t.rejections.length >= 3))) {
+  if (t.stage === "BLOCKED") {
     arbSection.style.display = "block";
-    arbContent.innerText = t.arbitration_report || "三振出局硬熔断触发！系统已唤醒休眠 CTO 接入仲裁，请联系管理员审阅事件日志并执行时光倒流回退。";
+    arbContent.innerText = t.arbitration_report || "🚨 三振出局硬熔断触发！系统已唤醒休眠 CTO 接入仲裁。智能体权限已锁死，请在下方执行特权决策以解除死锁。";
   } else {
     arbSection.style.display = "none";
   }
 
-  // 7. 弹窗 Footer: 支持认领、退单、与一键放行终审
+  // 6.7 ⏳ LangGraph 时光倒流检查点装载 (P0)
+  const taskCheckpoints = (gBoardData.checkpoints && gBoardData.checkpoints[t.id]) || [];
+  const cpCountEl = document.getElementById("modalCheckpointCount");
+  const cpSelectEl = document.getElementById("modalCheckpointSelect");
+  if (cpCountEl) cpCountEl.innerText = `${taskCheckpoints.length} 个历史快照`;
+  if (cpSelectEl) {
+    if (taskCheckpoints.length === 0) {
+      cpSelectEl.innerHTML = `<option value="">暂无可用时空快照（工单未产生流转检查点）</option>`;
+      cpSelectEl.disabled = true;
+    } else {
+      cpSelectEl.disabled = false;
+      cpSelectEl.innerHTML = taskCheckpoints.slice().reverse().map(cp => {
+        const timeStr = (cp.timestamp || "").replace("T", " ").split(".")[0];
+        const stageLabel = (STAGE_MAP[cp.stage] && STAGE_MAP[cp.stage].label) || cp.stage;
+        return `<option value="${cp.stage}">[${timeStr}] 检查点: ${stageLabel} (${cp.stage})</option>`;
+      }).join("");
+    }
+  }
+
+  // 7. 弹窗 Footer: 支持认领、退单、一票否决与一键放行终审
   const footerStatusEl = document.getElementById("modalFooterStatus");
   const acceptActionContainer = document.getElementById("modalAcceptActionContainer");
+  const vetoActionContainer = document.getElementById("modalVetoActionContainer");
 
   footerStatusEl.innerHTML = `工单当前处于：<strong style="color:var(--cyan);">${stageInfo.label}</strong>`;
+
+  if (vetoActionContainer) {
+    if (t.stage !== "ACCEPTED" && t.stage !== "CANCELLED") {
+      vetoActionContainer.innerHTML = `
+        <button class="btn btn-secondary" onclick="openVetoModal('${t.id}')" style="border-color:var(--red); color:var(--red); font-size:12px; padding:6px 14px;">
+          🚫 质检否决 (#Veto)
+        </button>
+      `;
+    } else {
+      vetoActionContainer.innerHTML = "";
+    }
+  }
 
   if (t.stage === "COMPLETED") {
     acceptActionContainer.innerHTML = `
@@ -2463,11 +2969,17 @@ function toggleRawReceiptJson() {
 // 11. 新建工单弹窗交互
 function openCreateModal() {
   document.getElementById("createModal").classList.add("active");
+  syncModalState();
+  const modalBody = document.querySelector("#createModal .modal-body");
+  if (modalBody) {
+    modalBody.scrollTop = 0;
+  }
   document.getElementById("newTitle").focus();
 }
 
 function closeCreateModal() {
   document.getElementById("createModal").classList.remove("active");
+  syncModalState();
 }
 
 function submitCreateTask() {
@@ -2515,6 +3027,7 @@ function submitCreateTask() {
       document.getElementById("newObjective").value = "";
       document.getElementById("newDesc").value = "";
       fetchBoard();
+      fetchEvents(true);
     } else {
       alert("创建失败: " + (res.error || "未知错误"));
     }
@@ -2522,9 +3035,362 @@ function submitCreateTask() {
   .catch(err => alert("网络请求异常: " + err));
 }
 
-// 启动初始化
-fetchBoard();
-setInterval(fetchBoard, 2500);
+// ================================================================
+// P0 & P1 核心治理引擎：时光倒流、CTO仲裁、一票否决与实时事件流
+// ================================================================
+
+// 1. ⏳ LangGraph 时光倒流执行器 (P0)
+function executeTimeTravelRollback() {
+  if (!gSelectedTaskId) return;
+  const cpSelectEl = document.getElementById("modalCheckpointSelect");
+  const targetStage = cpSelectEl ? cpSelectEl.value : "";
+  if (!targetStage) {
+    alert("请选择要回退的目标时空检查点！");
+    return;
+  }
+  const stageLabel = (STAGE_MAP[targetStage] && STAGE_MAP[targetStage].label) || targetStage;
+  if (!confirm(`⏳ 确认执行 LangGraph 时光倒流？\n\n工单【${gSelectedTaskId}】将恢复至检查点【${stageLabel}】的历史快照状态，无损抹平后续错误决策与代码污染。`)) {
+    return;
+  }
+
+  fetch("/api/task/rollback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: gSelectedTaskId, stage: targetStage })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      alert(`⏳ 时光倒流成功！工单 ${gSelectedTaskId} 已安全回滚至【${stageLabel}】检查点！`);
+      fetchBoard(true);
+      fetchEvents(true);
+      if (res.task) showTaskDetails(res.task);
+    } else {
+      alert("时光倒流回退失败: " + (res.error || "未知错误"));
+    }
+  })
+  .catch(err => alert("网络请求异常: " + err));
+}
+
+// 2. ⚖️ 首席技术官 (CTO) 仲裁决策执行台 (P0)
+function executeArbitrationAction(action) {
+  if (!gSelectedTaskId) return;
+  let confirmMsg = "";
+  if (action === "rollback") {
+    confirmMsg = `⚖️ 确认执行 CTO 仲裁【方案 A：无损时光倒流重构】？\n\n将重置熔断并回退至待领池 (READY_TO_CLAIM)，允许重新指派角色干净重构。`;
+  } else if (action === "split") {
+    confirmMsg = `⚖️ 确认执行 CTO 仲裁【方案 B：拆解为 2 个原子子任务】？\n\n当前过大工单将被废弃关单，系统将自动拆解生成两项独立原子子工单继续研发。`;
+  } else if (action === "cancel") {
+    confirmMsg = `⚖️ 确认执行 CTO 仲裁【方案 C：直接终止废弃需求】？\n\n工单将流转至 CANCELLED 终态，不再继续推进。`;
+  } else {
+    return;
+  }
+
+  if (!confirm(confirmMsg)) return;
+
+  fetch("/api/task/arbitrate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: gSelectedTaskId, action: action })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      alert(`⚖️ CTO 仲裁决策执行成功！`);
+      fetchBoard(true);
+      fetchEvents(true);
+      if (res.task && res.task.stage !== "CANCELLED") {
+        showTaskDetails(res.task);
+      } else {
+        closeTaskModal();
+      }
+    } else {
+      alert("CTO 仲裁执行失败: " + (res.error || "未知错误"));
+    }
+  })
+  .catch(err => alert("网络请求异常: " + err));
+}
+
+// 3. 🚫 一票否决制衡打回弹窗交互 (#Veto P0)
+function openVetoModal(taskId) {
+  gSelectedTaskId = taskId || gSelectedTaskId;
+  const task = (gBoardData.tasks || {})[gSelectedTaskId];
+  if (!task) return;
+
+  const typeSelect = document.getElementById("vetoType");
+  const updateVetoPreview = () => {
+    const curType = typeSelect ? typeSelect.value : "SR";
+    const rejCount = ((task.rejections || []).length) + 1;
+    const tagPreview = document.getElementById("vetoTaskTagPreview");
+    if (tagPreview) tagPreview.innerText = `#${curType}-${rejCount}`;
+  };
+  if (typeSelect) {
+    typeSelect.onchange = updateVetoPreview;
+  }
+  updateVetoPreview();
+
+  document.getElementById("vetoModalOverlay").classList.add("active");
+  syncModalState();
+  const reasonEl = document.getElementById("vetoReason");
+  if (reasonEl) {
+    reasonEl.value = "";
+    reasonEl.focus();
+  }
+}
+
+function closeVetoModal() {
+  document.getElementById("vetoModalOverlay").classList.remove("active");
+  const reasonEl = document.getElementById("vetoReason");
+  if (reasonEl) reasonEl.value = "";
+  syncModalState();
+}
+
+function submitVeto() {
+  if (!gSelectedTaskId) return;
+  const role = document.getElementById("vetoRole").value;
+  const vType = document.getElementById("vetoType").value;
+  const reason = document.getElementById("vetoReason").value.trim();
+
+  if (!reason) {
+    alert("请输入详细打回原因与整改要求！明确指出具体缺陷才能有效指导修复。");
+    return;
+  }
+
+  fetch("/api/task/reject", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: gSelectedTaskId,
+      role: role,
+      type: vType,
+      reason: reason,
+      target_stage: "IN_PROGRESS"
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      alert(`🚫 质检一票否决 #${vType} 签发成功！工单已回退至整改阶段。`);
+      closeVetoModal();
+      fetchBoard(true);
+      fetchEvents(true);
+      if (res.task) {
+        showTaskDetails(res.task);
+      }
+    } else {
+      alert("签发否决单失败: " + (res.error || "未知错误"));
+    }
+  })
+  .catch(err => alert("网络请求异常: " + err));
+}
+
+// 4. 📡 实时不可变事件流 (Live Event Stream P1)
+function formatEventSummary(evt) {
+  const p = evt.payload || {};
+  switch(evt.event_type) {
+    case "TASK_CREATED":
+      return `立项创建需求: "${p.title || ''}" (${p.tier !== undefined ? 'Tier ' + p.tier : 'TSK'})`;
+    case "TASK_STARTED":
+      return `角色认领推进进入编码研发 [IN_PROGRESS]`;
+    case "STAGE_ADVANCED":
+      if (p.receipt) {
+        const rName = p.receipt.split(/[\/\\]/).pop();
+        return `门禁核验收据写入: ${rName}`;
+      }
+      return `流转推进: [${p.from || ''}] ➔ [${p.to || ''}]`;
+    case "TASK_REJECTED":
+      return `行使一票否决 [${p.tag || '#VETO'}]: "${p.reason || ''}"`;
+    case "TIME_TRAVEL_ROLLBACK":
+      return `时光倒流快照恢复，安全回滚至阶段: [${p.target_stage || ''}]`;
+    case "TASK_ACCEPTED":
+      return `人类管理员终审核准放行归档: "${p.note || ''}"`;
+    default:
+      return `${evt.event_type} (${JSON.stringify(p)})`;
+  }
+}
+
+function getEventBadgeInfo(eventType) {
+  switch(eventType) {
+    case "TASK_CREATED":
+      return { cls: "log-badge-CREATE", label: "CREATE" };
+    case "TASK_STARTED":
+    case "STAGE_ADVANCED":
+      return { cls: "log-badge-STAGE", label: "STAGE" };
+    case "TASK_REJECTED":
+      return { cls: "log-badge-REJECT", label: "REJECT" };
+    case "TIME_TRAVEL_ROLLBACK":
+      return { cls: "log-badge-ROLLBACK", label: "ROLLBACK" };
+    case "TASK_ACCEPTED":
+      return { cls: "log-badge-ACCEPT", label: "ACCEPT" };
+    default:
+      return { cls: "log-badge-STAGE", label: eventType || "EVENT" };
+  }
+}
+
+function fetchEvents(manual = false) {
+  fetch("/api/events?limit=80")
+    .then(r => r.json())
+    .then(data => {
+      gEventsData = data.events || [];
+      renderEventTicker();
+      renderTerminalDrawer(gCurrentDrawerFilter);
+    })
+    .catch(err => {
+      if (manual) console.error("Fetch events error:", err);
+    });
+}
+
+function renderEventTicker() {
+  const snippetEl = document.getElementById("tickerSnippet");
+  const countEl = document.getElementById("tickerEventCount");
+  if (!snippetEl || !countEl) return;
+
+  countEl.innerText = `${gEventsData.length} 条事件`;
+  if (gEventsData.length === 0) {
+    snippetEl.innerText = "暂无事件日志记录";
+    return;
+  }
+
+  const latest = gEventsData[0];
+  const timeStr = (latest.timestamp || "").replace("T", " ").split(".")[0].split(" ")[1] || "";
+  snippetEl.innerHTML = `
+    <span style="color:var(--text-dim); font-family:var(--mono);">${timeStr}</span>
+    <span class="log-task" onclick="event.stopPropagation(); onSelectTask('${latest.task_id}')">${latest.task_id}</span>
+    <span style="color:var(--cyan); font-weight:600;">[${latest.actor || 'system'}]</span>
+    <span>${formatEventSummary(latest)}</span>
+  `;
+}
+
+function renderTerminalDrawer(filter = "ALL") {
+  const container = document.getElementById("terminalLogs");
+  const drawerCountEl = document.getElementById("drawerEventCount");
+  if (!container) return;
+
+  let list = gEventsData;
+  if (filter === "TASK_CREATED") {
+    list = list.filter(e => e.event_type === "TASK_CREATED");
+  } else if (filter === "STAGE_ADVANCED") {
+    list = list.filter(e => e.event_type === "STAGE_ADVANCED" || e.event_type === "TASK_STARTED");
+  } else if (filter === "REJECT") {
+    list = list.filter(e => e.event_type === "TASK_REJECTED");
+  } else if (filter === "TIME_TRAVEL") {
+    list = list.filter(e => e.event_type === "TIME_TRAVEL_ROLLBACK");
+  } else if (filter === "TASK_ACCEPTED") {
+    list = list.filter(e => e.event_type === "TASK_ACCEPTED");
+  }
+
+  if (drawerCountEl) {
+    drawerCountEl.innerText = `${list.length} / ${gEventsData.length} Events`;
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = `<div style="color:var(--text-dim); padding:16px 0; text-align:center;">当前分类下无匹配事件记录</div>`;
+    return;
+  }
+
+  container.innerHTML = list.map(evt => {
+    const timeStr = (evt.timestamp || "").replace("T", " ").split(".")[0];
+    const badge = getEventBadgeInfo(evt.event_type);
+    const desc = formatEventSummary(evt);
+    return `
+      <div class="terminal-log-line">
+        <span class="log-time">${timeStr}</span>
+        <span class="log-badge ${badge.cls}">${badge.label}</span>
+        <span class="log-actor">[${evt.actor || 'system'}]</span>
+        <span class="log-task" onclick="onSelectTask('${evt.task_id}')" title="查看工单详情">${evt.task_id}</span>
+        <span class="log-desc">${desc}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function toggleTerminalDrawer() {
+  const drawer = document.getElementById("terminalDrawer");
+  if (drawer) {
+    drawer.classList.toggle("active");
+  }
+}
+
+function filterDrawerEvents(filter) {
+  gCurrentDrawerFilter = filter;
+  document.querySelectorAll(".drawer-filter-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-filter") === filter);
+  });
+  renderTerminalDrawer(filter);
+}
+
+// 启动初始化与路由挂钩
+function initApp() {
+  const targetView = getRouteView();
+  switchView(targetView, null);
+  fetchBoard();
+  fetchEvents();
+  setInterval(() => {
+    fetchBoard();
+    fetchEvents();
+  }, 2500);
+}
+
+// 全维平滑滚轮响应系统：确保鼠标在卡片/泳道任意位置时，100% 垂直流畅滚动；空白处/Shift键水平横移
+document.addEventListener("wheel", function(e) {
+  // 1. 若当前存在处于激活打开状态的模态弹窗
+  const activeOverlay = document.querySelector(".modal-overlay.active");
+  if (activeOverlay) {
+    const modal = e.target.closest(".modal");
+    if (modal) {
+      // 鼠标光标位于弹窗内部任意位置：直接交由浏览器原生精准分发嵌套滚动
+      // 内部滚动条 (如 .role-actions-list、textarea、pre 等) 与外层弹窗主体 (.modal-body) 均能按悬浮位置独立平滑滚动
+      // 绝不强行拦截指定目标，自然流畅响应光标下的具体滚动容器
+      return;
+    }
+    // 鼠标位于弹窗遮罩背景等空白区域：彻底阻断滚轮穿透给底层大盘
+    if (e.target.closest(".modal-overlay")) {
+      e.preventDefault();
+      return;
+    }
+  }
+
+  // 2. 看板卡片列表滚轮平滑处理
+  const cardList = e.target.closest(".cards-list, .stage-col-body");
+  if (cardList) {
+    if (e.deltaY !== 0) {
+      cardList.scrollTop += e.deltaY;
+      e.preventDefault();
+    }
+    return;
+  }
+
+  // 3. 大盘主视口支持 Shift + 滚轮 或 在空白区域进行平滑水平移动 (弹窗打开时绝不触发)
+  const main = document.getElementById("mainViewContainer");
+  if (main && e.deltaY !== 0 && !activeOverlay) {
+    if (e.shiftKey || main.scrollWidth > main.clientWidth) {
+      main.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }
+}, { passive: false });
+
+// 键盘快捷键：ESC 快速关闭任意弹窗并解除背景滚动锁定
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape" || e.key === "Esc") {
+    closeTaskModal();
+    closeCreateModal();
+    closeVetoModal();
+    const drawer = document.getElementById("terminalDrawer");
+    if (drawer && drawer.classList.contains("active")) {
+      drawer.classList.remove("active");
+    }
+  }
+});
+
+window.addEventListener("hashchange", () => {
+  const target = getRouteView();
+  if (target !== gCurrentView) {
+    switchView(target, null);
+  }
+});
+
+initApp();
 </script>
 
 </body>

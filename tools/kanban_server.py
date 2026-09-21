@@ -62,6 +62,9 @@ class KanbanHandler(BaseHTTPRequestHandler):
         self.send_response(status_code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
@@ -105,6 +108,25 @@ class KanbanHandler(BaseHTTPRequestHandler):
                 self._send_json(500, {"error": str(e)})
             return
 
+        elif path == "/api/events":
+            try:
+                limit = int(query.get("limit", [50])[0])
+                event_file = _PROJECT_ROOT / ".agents" / "event_stream.jsonl"
+                events = []
+                if event_file.exists():
+                    with open(event_file, "r", encoding="utf-8") as f:
+                        lines = [line.strip() for line in f if line.strip()]
+                    # 倒序返回最新的事件记录
+                    for line in reversed(lines[-limit:]):
+                        try:
+                            events.append(json.loads(line))
+                        except Exception:
+                            pass
+                self._send_json(200, {"events": events, "total": len(events)})
+            except Exception as e:
+                self._send_json(500, {"error": str(e)})
+            return
+
         elif path == "/api/receipt":
             receipt_path_raw = query.get("path", [""])[0]
             if not receipt_path_raw:
@@ -136,6 +158,9 @@ class KanbanHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
                 self.send_header("Content-Length", str(len(content)))
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0")
+                self.send_header("Pragma", "no-cache")
+                self.send_header("Expires", "0")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(content)
@@ -270,6 +295,79 @@ class KanbanHandler(BaseHTTPRequestHandler):
                 role = body.get("role", "developer")
                 reason = body.get("reason", "通过 Web 界面主动退还工单")
                 task = sm.surrender_task(task_id, role=role, reason=reason)
+                self._send_json(200, {"success": True, "task": task})
+            except Exception as e:
+                self._send_json(400, {"success": False, "error": str(e)})
+            return
+
+        elif path == "/api/task/rollback":
+            try:
+                task_id = body.get("id")
+                target_stage = body.get("stage")
+                if not task_id or not target_stage:
+                    self._send_json(400, {"success": False, "error": "缺少工单编号 (id) 或目标回滚阶段 (stage)"})
+                    return
+                task = sm.rollback_to_checkpoint(task_id, target_stage)
+                self._send_json(200, {"success": True, "task": task})
+            except Exception as e:
+                self._send_json(400, {"success": False, "error": str(e)})
+            return
+
+        elif path == "/api/task/arbitrate":
+            try:
+                task_id = body.get("id")
+                action = body.get("action", "rollback")  # rollback, split, cancel
+                note = body.get("note", "")
+                if not task_id:
+                    self._send_json(400, {"success": False, "error": "缺少工单编号 (id)"})
+                    return
+
+                task = sm.get_task(task_id)
+                if action == "rollback":
+                    target_stage = body.get("target_stage")
+                    if not target_stage:
+                        checkpoints = sm.data.get("checkpoints", {}).get(task_id, [])
+                        stages = [cp["stage"] for cp in checkpoints]
+                        if "READY_TO_CLAIM" in stages:
+                            target_stage = "READY_TO_CLAIM"
+                        elif "BACKLOG" in stages:
+                            target_stage = "BACKLOG"
+                        elif checkpoints:
+                            target_stage = checkpoints[0]["stage"]
+                        else:
+                            target_stage = "BACKLOG"
+                    task = sm.rollback_to_checkpoint(task_id, target_stage)
+                elif action == "cancel":
+                    task = sm.advance_stage(task_id, "CANCELLED", "human_admin", note=note or "CTO 仲裁终止废弃需求")
+                elif action == "split":
+                    subtasks = body.get("subtasks", [])
+                    if not subtasks:
+                        # 默认拆分为两项原子子任务
+                        subtasks = [
+                            {"title": f"{task['title']} - 核心基石", "hours": round(task.get("est_hours", 4.0) / 2, 1)},
+                            {"title": f"{task['title']} - 演进扩展", "hours": round(task.get("est_hours", 4.0) / 2, 1)}
+                        ]
+                    created_ids = []
+                    for idx, sub in enumerate(subtasks, start=1):
+                        sub_id = f"{task_id}-{idx:02d}"
+                        sub_title = sub.get("title", f"{task['title']} (拆分任务 {idx})")
+                        sub_hours = float(sub.get("hours", 2.0))
+                        sm.create_task(
+                            task_id=sub_id,
+                            title=sub_title,
+                            desc=f"由熔断工单 {task_id} 仲裁拆解生成的原子子任务：\n{sub.get('desc', '')}",
+                            tier=task.get("tier", 2),
+                            item_type="TSK",
+                            priority=task.get("priority", "HIGH"),
+                            assignee="pm",
+                            est_hours=sub_hours,
+                            objective=sub_title
+                        )
+                        created_ids.append(sub_id)
+                    task = sm.advance_stage(task_id, "CANCELLED", "human_admin", note=f"CTO 仲裁拆解为子工单: {created_ids}")
+                else:
+                    raise ValueError(f"Unknown arbitration action: '{action}'")
+
                 self._send_json(200, {"success": True, "task": task})
             except Exception as e:
                 self._send_json(400, {"success": False, "error": str(e)})

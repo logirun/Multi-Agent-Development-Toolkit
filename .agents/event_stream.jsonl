@@ -15,3 +15,12 @@
 {"timestamp": "2026-09-20T12:22:38.505191", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1001", "actor": "release_engineer", "payload": {"from": "DOC_SYNC", "to": "COMPLETED", "receipt": null}}
 {"timestamp": "2026-09-20T12:22:46.723198", "event_type": "TASK_ACCEPTED", "task_id": "TSK-1001", "actor": "Human Operator (lm197)", "payload": {"note": "Staging verified. Ready for production."}}
 {"timestamp": "2026-09-20T13:02:48.246724", "event_type": "TASK_CREATED", "task_id": "SPK-1002", "actor": "developer", "payload": {"title": "集成OpenTelemetry全链路追踪探针", "tier": 1}}
+{"timestamp": "2026-09-20T23:43:01.300169", "event_type": "TASK_CREATED", "task_id": "TSK-1008", "actor": "developer", "payload": {"title": "测试时光倒流与仲裁任务", "tier": 2}}
+{"timestamp": "2026-09-20T23:43:03.367308", "event_type": "TASK_STARTED", "task_id": "TSK-1008", "actor": "developer", "payload": {"stage": "IN_PROGRESS"}}
+{"timestamp": "2026-09-20T23:43:05.438552", "event_type": "TASK_REJECTED", "task_id": "TSK-1008", "actor": "security_engineer", "payload": {"tag": "TSK-1008#SR-1", "reason": "测试一票否决", "stage": "IN_PROGRESS"}}
+{"timestamp": "2026-09-20T23:43:40.159562", "event_type": "TIME_TRAVEL_ROLLBACK", "task_id": "TSK-1008", "actor": "cto", "payload": {"target_stage": "BACKLOG"}}
+{"timestamp": "2026-09-20T23:43:42.230740", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1008", "actor": "human_admin", "payload": {"from": "BACKLOG", "to": "CANCELLED", "receipt": null}}
+{"timestamp": "2026-09-20T23:44:21.561926", "event_type": "TIME_TRAVEL_ROLLBACK", "task_id": "TSK-1008", "actor": "cto", "payload": {"target_stage": "BACKLOG"}}
+{"timestamp": "2026-09-20T23:45:13.875834", "event_type": "TASK_CREATED", "task_id": "TSK-1008-01", "actor": "pm", "payload": {"title": "测试时光倒流与仲裁任务 - 核心基石", "tier": 2}}
+{"timestamp": "2026-09-20T23:45:13.883928", "event_type": "TASK_CREATED", "task_id": "TSK-1008-02", "actor": "pm", "payload": {"title": "测试时光倒流与仲裁任务 - 演进扩展", "tier": 2}}
+{"timestamp": "2026-09-20T23:45:13.892914", "event_type": "STAGE_ADVANCED", "task_id": "TSK-1008", "actor": "human_admin", "payload": {"from": "BACKLOG", "to": "CANCELLED", "receipt": null}}

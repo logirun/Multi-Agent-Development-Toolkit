@@ -1,0 +1,12 @@
+{
+  "receipt_id": "REC-DOC-1006-GATE_5_DOC_SYNC-PASS",
+  "task_id": "DOC-1006",
+  "gate": "gate_5_doc_sync",
+  "outcome": "PASS",
+  "timestamp": "2026-09-20T23:22:51.602985",
+  "details": {
+    "target": "docs/PROJECT_STRUCTURE.md",
+    "status": "SYNCED"
+  },
+  "signature_sha256": "639e8f32458466f528c44f3335b9e05ac147a395e325335930d22acd1d19eb95"
+}

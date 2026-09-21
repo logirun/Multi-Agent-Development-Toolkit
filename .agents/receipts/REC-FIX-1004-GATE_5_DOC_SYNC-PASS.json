@@ -1,0 +1,12 @@
+{
+  "receipt_id": "REC-FIX-1004-GATE_5_DOC_SYNC-PASS",
+  "task_id": "FIX-1004",
+  "gate": "gate_5_doc_sync",
+  "outcome": "PASS",
+  "timestamp": "2026-09-20T23:22:51.576217",
+  "details": {
+    "repomap": "synced",
+    "api_doc": "updated"
+  },
+  "signature_sha256": "0352155990483d377fdf926a31d511965a2a036a6192f109a8b93abe69ee41c6"
+}

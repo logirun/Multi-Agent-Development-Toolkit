@@ -1,0 +1,17 @@
+{
+  "receipt_id": "REC-REQ-1003-GATE_1_CONTRACT-PASS",
+  "task_id": "REQ-1003",
+  "gate": "gate_1_contract",
+  "outcome": "PASS",
+  "timestamp": "2026-09-20T23:22:51.558898",
+  "details": {
+    "spec_file": "docs\\specs\\SPEC-REQ-1003.md",
+    "sha256": "97b86bfb0dc11302ff24ff461f89a8044befd6ddf50a7dcb28e0aee79da25ea7",
+    "in_scope": [
+      "src/tenant/router.py",
+      "src/tenant/context.py",
+      "tests/test_tenant_router.py"
+    ]
+  },
+  "signature_sha256": "c77018d102f55b6330e0377a8f9305cf6d983791dbccbd73817f4a7535e134b8"
+}

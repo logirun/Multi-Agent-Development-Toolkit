@@ -1,0 +1,11 @@
+{
+  "receipt_id": "REC-TSK-1005-GATE_1_CONTRACT-PASS",
+  "task_id": "TSK-1005",
+  "gate": "gate_1_contract",
+  "outcome": "PASS",
+  "timestamp": "2026-09-20T23:22:51.586283",
+  "details": {
+    "sha256": "4acea8626cef463924a3423d7f2255d101808a835552ce37ae966307356d89b0"
+  },
+  "signature_sha256": "e4a22f192839885cb497d0fe10f9c6c77ecf449f3520f4fa90717a11eb77a9dd"
+}
